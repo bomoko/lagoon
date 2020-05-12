@@ -36,6 +36,11 @@ const typeDefs = gql`
     EMAIL
   }
 
+  enum NotificationContentType {
+    DEPLOYMENT
+    PROBLEM
+  }
+
   enum DeploymentStatusType {
     NEW
     PENDING
@@ -862,6 +867,7 @@ const typeDefs = gql`
     project: String!
     notificationType: NotificationType!
     notificationName: String!
+    contentType: NotificationContentType
   }
 
   input RemoveNotificationFromProjectInput {

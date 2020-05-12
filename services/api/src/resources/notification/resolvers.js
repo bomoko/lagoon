@@ -5,6 +5,7 @@ const { query, prepare, isPatchEmpty } = require('../../util/db');
 const projectHelpers = require('../project/helpers');
 const Helpers = require('./helpers');
 const Sql = require('./sql');
+const DEFAULTS = require('./defaults');
 
 /* ::
 
@@ -17,6 +18,12 @@ const notificationTypeToString = R.cond([
   [R.equals('ROCKETCHAT'), R.toLower],
   [R.equals('EMAIL'), R.toLower],
   [R.equals('SLACK'), R.toLower],
+  [R.T, R.identity],
+]);
+
+const notifiationContentTypeToString = R.cond([
+  [R.equals('DEPLOYMENT'), R.toLower],
+  [R.equals('PROBLEM'), R.toLower],
   [R.T, R.identity],
 ]);
 
@@ -85,6 +92,7 @@ const addNotificationToProject = async (
 ) => {
   const input = R.compose(
     R.over(R.lensProp('notificationType'), notificationTypeToString),
+    R.over(R.lensProp('contentType'), notifiationContentTypeToString),
   )(unformattedInput);
 
   const pid = await projectHelpers(sqlClient).getProjectIdByName(input.project);
@@ -102,6 +110,7 @@ const addNotificationToProject = async (
     );
   }
   projectNotification.notificationType = input.notificationType;
+  projectNotification.contentType = input.contentType || DEFAULTS.NOTIFICATION_CONTENT_TYPE;
 
   await query(sqlClient, Sql.createProjectNotification(projectNotification));
   const select = await query(

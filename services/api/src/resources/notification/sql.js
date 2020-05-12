@@ -1,11 +1,7 @@
 // @flow
 
 const { knex } = require('../../util/db');
-
-// content_type was introduced as a later extension
-// to the notifications system - we set the default type
-// to 'deployment' to ensure external consistency of the API
-const DEFAULT_NOTIFICATION_CONTENT_TYPE = 'deployment';
+const DEFAULTS = require('./defaults');
 
 /* ::
 
@@ -15,7 +11,7 @@ import type {Cred, SqlObj} from '../';
 
 const Sql /* : SqlObj */ = {
   createProjectNotification: (input /* : Object */) => {
-    const { pid, notificationType, nid, contentType = DEFAULT_NOTIFICATION_CONTENT_TYPE } = input;
+    const { pid, notificationType, nid, contentType = DEFAULTS.NOTIFICATION_CONTENT_TYPE } = input;
 
     return knex('project_notification')
       .insert({
@@ -27,7 +23,7 @@ const Sql /* : SqlObj */ = {
       .toString();
   },
   selectProjectNotificationByNotificationName: (input /* : Object */) => {
-    const { name, type, contentType = DEFAULT_NOTIFICATION_CONTENT_TYPE } = input;
+    const { name, type, contentType = DEFAULTS.NOTIFICATION_CONTENT_TYPE } = input;
 
     return knex('project_notification AS pn')
       .joinRaw(
@@ -72,7 +68,7 @@ const Sql /* : SqlObj */ = {
       .toString();
   },
   selectProjectNotification: (input /* : Object */) => {
-    const { project, notificationType, notificationName } = input;
+    const { project, notificationType, notificationName, contentType = DEFAULTS.NOTIFICATION_CONTENT_TYPE } = input;
     return knex({ p: 'project', nt: `notification_${notificationType}` })
       .where({ 'p.name': project })
       .andWhere({ 'nt.name': notificationName })
@@ -112,10 +108,10 @@ const Sql /* : SqlObj */ = {
       .toString();
   },
   selectNotificationsByTypeByProjectId: (input /* : Object */) => {
-    const { type, pid } = input;
+    const { type, pid, contentType = DEFAULTS.NOTIFICATION_CONTENT_TYPE } = input;
     const selectQuery = knex('project_notification AS pn').joinRaw(
-      `JOIN notification_${type} AS nt ON pn.nid = nt.id AND pn.type = ?`,
-      [type],
+      `JOIN notification_${type} AS nt ON pn.nid = nt.id AND pn.type = :type AND pn.content_type = :contentType`,
+      {type, contentType},
     );
 
     return selectQuery
