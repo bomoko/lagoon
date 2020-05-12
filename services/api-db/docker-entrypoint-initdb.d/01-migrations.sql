@@ -1051,6 +1051,23 @@ CREATE OR REPLACE PROCEDURE
   END;
 $$
 
+CREATE OR REPLACE PROCEDURE
+  add_content_type_to_project_notification()
+
+  BEGIN
+    IF NOT EXISTS(
+      SELECT NULL
+      FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE
+        table_name = 'project_notification'
+        AND table_schema = 'infrastructure'
+        AND column_name = 'content_type'
+    ) THEN
+      ALTER TABLE `project_notification` ADD `content_type` content_type ENUM('deployment', 'problem') NOT NULL DEFAULT 'deployment';
+    END IF;
+  END;
+$$
+
 DELIMITER ;
 
 -- If adding new procedures, add them to the bottom of this list
@@ -1100,6 +1117,7 @@ CALL add_active_systems_misc_to_project();
 CALL add_container_registry_scope_to_env_vars();
 CALL add_internal_container_registry_scope_to_env_vars();
 CALL update_user_password();
+CALL add_content_type_to_project_notification();
 
 -- Drop legacy SSH key procedures
 DROP PROCEDURE IF EXISTS CreateProjectSshKey;
