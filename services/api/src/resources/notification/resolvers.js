@@ -92,7 +92,7 @@ const addNotificationToProject = async (
 ) => {
   const input = R.compose(
     R.over(R.lensProp('notificationType'), notificationTypeToString),
-    R.over(R.lensProp('contentType'), notifiationContentTypeToString),
+    R.over(R.lensProp('contentType'), notifiationContentTypeToString)
   )(unformattedInput);
 
   const pid = await projectHelpers(sqlClient).getProjectIdByName(input.project);
@@ -274,11 +274,13 @@ const getNotificationsByProjectId = async (
     project: pid,
   });
 
-  const args = R.compose(R.over(R.lensProp('type'), notificationTypeToString))(
+  const args = R.compose(
+    R.over(R.lensProp('type'), notificationTypeToString),
+    R.over(R.lensProp('contentType'), notifiationContentTypeToString))(
     unformattedArgs,
   );
 
-  const { type: argsType } = args;
+  const { type: argsType, contentType = DEFAULTS.NOTIFICATION_CONTENT_TYPE } = args;
 
   // Types to collect notifications from all different
   // notification type tables
@@ -292,6 +294,7 @@ const getNotificationsByProjectId = async (
           {
             type,
             pid,
+            contentType,
           },
         ),
       ),
