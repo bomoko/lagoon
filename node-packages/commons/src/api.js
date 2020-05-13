@@ -648,7 +648,7 @@ async function getRocketChatInfoForProject(
   return result.project.rocketchats;
 }
 
-async function getSlackinfoForProject(project) {
+async function getSlackinfoForProject(project, contentType = 'DEPLOYMENT') {
   const notificationsFragment = graphqlapi.createFragment(`
     fragment on NotificationSlack {
       webhook
@@ -659,7 +659,7 @@ async function getSlackinfoForProject(project) {
   const result = await graphqlapi.query(`
     {
       project:projectByName(name: "${project}") {
-        slacks: notifications(type: SLACK) {
+        slacks: notifications(type: SLACK, contentType: ${contentType}) {
           ...${notificationsFragment}
         }
       }
