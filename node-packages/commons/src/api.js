@@ -1182,6 +1182,104 @@ const getGroupMembersByGroupName = groupName => graphqlapi.query(
   { name: groupName }
 );
 
+const addProblem = ({
+  id = null,
+  environment,
+  identifier,
+  severity,
+  source,
+  severityScore,
+  data,
+  service,
+  associatedPackage,
+  description,
+  version,
+  fixedVersion,
+  links
+}) => {
+  return graphqlapi.mutate(
+    `
+    ($id: Int,
+      $environment: Int!,
+      $identifier: String!,
+      $severity: ProblemSeverityRating!,
+      $source: String!,
+      $severityScore: SeverityScore,
+      $data: String!,
+      $service: String,
+      $associatedPackage: String,
+      $description: String,
+      $version: String,
+      $fixedVersion: String,
+      $links: String) {
+      addProblem(input: {
+          id: $id
+          environment: $environment
+          identifier: $identifier
+          severity: $severity
+          source: $source
+          severityScore: $severityScore
+          data: $data
+          service: $service
+          associatedPackage: $associatedPackage
+          description: $description
+          version: $version
+          fixedVersion: $fixedVersion
+          links: $links
+      }) {
+        id
+        environment {
+          id
+        }
+        identifier
+        severity
+        source
+        severityScore
+        data
+        associatedPackage
+        description
+        version
+        fixedVersion
+        links
+      }
+    }
+  `,
+    {
+      id,
+      environment,
+      identifier,
+      severity,
+      source,
+      severityScore,
+      data,
+      service,
+      associatedPackage,
+      description: description.substring(0, 299),
+      version,
+      fixedVersion,
+      links
+    },
+  );
+}
+
+const deleteProblemsFromSource = (
+  environment,
+  source,
+  service
+) => {
+  return graphqlapi.mutate(
+    `($environment: Int!, $source: String!, $service: String!) {
+      deleteProblemsFromSource(input: {environment: $environment, source: $source, service: $service })
+    }
+    `,
+    {
+      environment,
+      source,
+      service
+    }
+  );
+}
+
 module.exports = {
   addGroup,
   addGroupWithParent,
@@ -1231,4 +1329,6 @@ module.exports = {
   sanitizeProjectName,
   getProjectsByGroupName,
   getGroupMembersByGroupName,
+  addProblem,
+  deleteProblemsFromSource,
 };
