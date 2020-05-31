@@ -1322,6 +1322,19 @@ const getProblemsforProjectEnvironment = async (
   return response.environmentByName.problems;
 }
 
+const getProblemHarborScanMatches = () => graphqlapi.query(
+    `query getProblemHarborScanMatches {
+      allProblemHarborScanMatchers {
+        id
+        name
+        description
+        defaultLagoonProject
+        defaultLagoonEnvironment
+        defaultLagoonService
+        regex
+      }
+    }`);
+
 module.exports = {
   addGroup,
   addGroupWithParent,
@@ -1374,4 +1387,5 @@ module.exports = {
   addProblem,
   deleteProblemsFromSource,
   getProblemsforProjectEnvironment,
+  getProblemHarborScanMatches,
 };

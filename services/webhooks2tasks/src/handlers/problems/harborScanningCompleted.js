@@ -11,6 +11,7 @@ const uuid4 = require('uuid4');
 const {
   getProjectByName,
   getEnvironmentByName,
+  getProblemHarborScanMatches,
 } = require('@lagoon/commons/src/api');
 
 const HARBOR_WEBHOOK_SUCCESSFUL_SCAN = "Success";
@@ -23,14 +24,14 @@ const DEFAULT_REPO_DETAILS_MATCHER = {
   regex: DEFAULT_REPO_DETAILS_REGEX,
 };
 
-const testPatternMatchers = [
-  {
-    defaultProjectName: "bi-node-template",
-    defaultEnvironmentName: "",
-    defaultServiceName: "blah",
-    regex: "^bi\-node\-template\-(?<lagoonEnvironmentName>.+)\/.*$",
-  }
-];
+// const testPatternMatchers = [
+//   {
+//     defaultProjectName: "bi-node-template",
+//     defaultEnvironmentName: "",
+//     defaultServiceName: "blah",
+//     regex: "^bi\-node\-template\-(?<lagoonEnvironmentName>.+)\/.*$",
+//   }
+// ];
 
 
 async function harborScanningCompleted(
@@ -50,8 +51,8 @@ async function harborScanningCompleted(
       harborScanId,
     } = validateAndTransformIncomingWebhookdata(body);
 
-
-    console.log(matchRepositoryAgainstPatterns(repository.repo_full_name, testPatternMatchers));
+    let harborScanPatternMatchers = await getProblemHarborScanMatches();
+    console.log(matchRepositoryAgainstPatterns(repository.repo_full_name, harborScanPatternMatchers));
     return;
 
     if(scanOverview.scan_status !== HARBOR_WEBHOOK_SUCCESSFUL_SCAN) {
