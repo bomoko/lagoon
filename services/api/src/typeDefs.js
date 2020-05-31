@@ -133,6 +133,29 @@ const typeDefs = gql`
     deleted: String
   }
 
+  type ProblemHarborScanMatch {
+    id: Int
+    name: String
+    description: String
+    defaultLagoonProject: Int
+    defaultLagoonEnvironment: Int
+    defaultLagoonService: String
+    regex: String
+  }
+
+  input AddProblemHarborScanMatchInput {
+    name: String!
+    description: String!
+    defaultLagoonProject: Int
+    defaultLagoonEnvironment: Int
+    defaultLagoonService: String
+    regex: String!
+  }
+
+  input DeleteProblemHarborScanMatchInput {
+    id: Int!
+  }
+
   input AddProblemInput {
     id: Int
     environment: Int!
@@ -699,6 +722,10 @@ const typeDefs = gql`
     Returns LAGOON_VERSION
     """
     lagoonVersion: JSON
+    """
+    Returns all ProblemHarborScanMatchers
+    """
+    allProblemHarborScanMatchers: [ProblemHarborScanMatch]
   }
 
   # Must provide id OR name
@@ -1367,8 +1394,10 @@ const typeDefs = gql`
     addBackup(input: AddBackupInput!): Backup
     addProblem(input: AddProblemInput!): Problem
     addProblemsFromSource(input: AddProblemsFromSourceInput!): String
+    addProblemHarborScanMatch(input: AddProblemHarborScanMatchInput!): ProblemHarborScanMatch
     deleteProblem(input: DeleteProblemInput!): String
     deleteProblemsFromSource(input: DeleteProblemsFromSourceInput!): String
+    deleteProblemHarborScanMatch(input: DeleteProblemHarborScanMatchInput!): String
     deleteBackup(input: DeleteBackupInput!): String
     deleteAllBackups: String
     addRestore(input: AddRestoreInput!): Restore

@@ -9,6 +9,9 @@ const {
   deleteProblem,
   deleteProblemsFromSource,
   addProblemsFromSource,
+  getProblemHarborScanMatches,
+  addProblemHarborScanMatch,
+  deleteProblemHarborScanMatch,
 } = require('./resources/problem/resolvers');
 
 const {
@@ -298,12 +301,15 @@ const resolvers /* : { [string]: ResolversObj | typeof GraphQLDate } */ = {
     billingGroupCost: getBillingGroupCost,
     allBillingGroupsCost: getAllBillingGroupsCost,
     allBillingModifiers: getBillingModifiers,
+    allProblemHarborScanMatchers: getProblemHarborScanMatches,
   },
   Mutation: {
     addProblem,
     addProblemsFromSource,
+    addProblemHarborScanMatch,
     deleteProblem,
     deleteProblemsFromSource,
+    deleteProblemHarborScanMatch,
     addOrUpdateEnvironment,
     updateEnvironment,
     deleteEnvironment,

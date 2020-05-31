@@ -227,6 +227,16 @@ CREATE TABLE IF NOT EXISTS environment_problem (
   UNIQUE(environment, lagoon_service, version, identifier, deleted)
 );
 
+CREATE TABLE IF NOT EXISTS problem_harbor_scan_matcher (
+  id                              int NOT NULL auto_increment PRIMARY KEY,
+  name                            varchar(100) NOT NULL,
+  description                     text NULL,
+  default_lagoon_project          int REFERENCES project (id),
+  default_lagoon_environment      int REFERENCES project (id),
+  default_lagoon_service_name     varchar(100) NULL,
+  regex                           varchar(300) NOT NULL
+);
+
 -- Junction Tables
 
 CREATE TABLE IF NOT EXISTS project_notification (
