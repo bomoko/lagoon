@@ -56,6 +56,7 @@ const typeDefs = gql`
     RUNTIME
     GLOBAL
     CONTAINER_REGISTRY
+    INTERNAL_CONTAINER_REGISTRY
   }
 
   enum TaskStatusType {
@@ -104,6 +105,8 @@ const typeDefs = gql`
 
   enum ProblemSeverityRating {
     NONE
+    UNKNOWN
+    NEGLIGIBLE
     LOW
     MEDIUM
     HIGH
@@ -111,18 +114,31 @@ const typeDefs = gql`
   }
 
   scalar SeverityScore
-
+  
   type Problem {
     id: Int
-    environment: Environment
+    environmentId: Int
+    project: [Project]
     severity: ProblemSeverityRating
     severityScore: SeverityScore
     identifier: String
     service: String
     source: String
+    associatedPackage: String
+    description: String
+    links: String
+    version: String
+    fixedVersion: String
     data: String
     created: String
     deleted: String
+  }
+  
+  type ProblemIdentifier {
+    identifier: String
+    problem: Problem
+    projects: [Project]
+    problems: [Problem]
   }
 
   input AddProblemInput {
@@ -133,13 +149,36 @@ const typeDefs = gql`
     identifier: String!
     service: String
     source: String!
+    associatedPackage: String
+    description: String
+    links: String
+    version: String
+    fixedVersion: String
     data: String!
     created: String
+  }
+
+  input BulkProblem {
+    severity: ProblemSeverityRating
+    severityScore: SeverityScore
+    identifier: String
+    data: String
+  }
+
+  input AddProblemsFromSourceInput {
+    environment: Int!
+    source: String!
+    problems: [BulkProblem]
   }
 
   input DeleteProblemInput {
     environment: Int!
     identifier: String!
+  }
+
+  input DeleteProblemsFromSourceInput {
+    environment: Int!
+    source: String!
   }
 
   type File {
@@ -264,8 +303,8 @@ const typeDefs = gql`
     name: String
     """
     Git URL, needs to be SSH Git URL in one of these two formats
-    - git@192.168.42.1/project1.git
-    - ssh://git@192.168.42.1:2222/project1.git
+    - git@172.17.0.1/project1.git
+    - ssh://git@172.17.0.1:2222/project1.git
     """
     gitUrl: String
     """
@@ -307,9 +346,14 @@ const typeDefs = gql`
     activeSystemsRemove: String
     """
     Which internal Lagoon System is responsible for tasks
-    Currently only 'lagoon_openshiftJob' exists
+    'lagoon_openshiftJob' or 'lagoon_kubernetesJob'
     """
     activeSystemsTask: String
+    """
+    Which internal Lagoon System is responsible for miscellaneous tasks
+    'lagoon_openshiftMisc' or 'lagoon_kubernetesMisc'
+    """
+    activeSystemsMisc: String
     """
     Which branches should be deployed, can be one of:
     - \`true\` - all branches are deployed
@@ -330,6 +374,29 @@ const typeDefs = gql`
     """
     productionEnvironment: String
     """
+    Routes that are attached to the active environment
+    """
+    productionRoutes: String
+    """
+    The drush alias to use for the active production environment
+    *Important:* This is mainly used for drupal, but could be used for other services potentially
+    """
+    productionAlias: String
+    """
+    Which environment(the name) should be marked as the production standby environment.
+    *Important:* This is used to determine which environment should be marked as the standby production environment
+    """
+    standbyProductionEnvironment: String
+    """
+    Routes that are attached to the standby environment
+    """
+    standbyRoutes: String
+    """
+    The drush alias to use for the standby production environment
+    *Important:* This is mainly used for drupal, but could be used for other services potentially
+    """
+    standbyAlias: String
+    """
     Should this project have auto idling enabled (\`1\` or \`0\`)
     """
     autoIdle: Int
@@ -349,6 +416,10 @@ const typeDefs = gql`
     How many environments can be deployed at one timeout
     """
     developmentEnvironmentsLimit: Int
+    """
+    Name of the OpenShift Project/Namespace
+    """
+    openshiftProjectName: String
     """
     Deployed Environments for this Project
     """
@@ -517,6 +588,10 @@ const typeDefs = gql`
     environment: Environment
     remoteId: String
     buildLog: String
+    """
+    The Lagoon URL
+    """
+    uiLink: String
   }
 
   type EnvKeyValue {
@@ -583,6 +658,7 @@ const typeDefs = gql`
     """
     projectByGitUrl(gitUrl: String!): Project
     environmentByName(name: String!, project: Int!): Environment
+    environmentById(id: Int!): Environment
     """
     Returns Environment Object by a given openshiftProjectName
     """
@@ -607,6 +683,10 @@ const typeDefs = gql`
     """
     allEnvironments(createdAfter: String, type: EnvType, order: EnvOrderType): [Environment]
     """
+    Returns all Problems matching given filter (all if no filter defined)
+    """
+    allProblems(source: [String], project: Int, environment: Int, identifier: String, severity: [ProblemSeverityRating]): [ProblemIdentifier]
+    """
     Returns all Groups matching given filter (all if no filter defined)
     """
     allGroups(name: String, type: String): [GroupInterface]
@@ -626,6 +706,10 @@ const typeDefs = gql`
     Returns the Billing Group Modifiers for a given Billing Group (all modifiers for the Billing Group will be returned if the month is not provided)
     """
     allBillingModifiers(input: GroupInput!, month: String): [BillingModifier]
+    """
+    Returns LAGOON_VERSION
+    """
+    lagoonVersion: JSON
   }
 
   # Must provide id OR name
@@ -675,9 +759,15 @@ const typeDefs = gql`
     activeSystemsPromote: String
     activeSystemsRemove: String
     activeSystemsTask: String
+    activeSystemsMisc: String
     branches: String
     pullrequests: String
     productionEnvironment: String!
+    productionRoutes: String
+    productionAlias: String
+    standbyProductionEnvironment: String
+    standbyRoutes: String
+    standbyAlias: String
     availability: ProjectAvailability
     autoIdle: Int
     storageCalc: Int
@@ -906,8 +996,14 @@ const typeDefs = gql`
     activeSystemsDeploy: String
     activeSystemsRemove: String
     activeSystemsTask: String
+    activeSystemsMisc: String
     branches: String
     productionEnvironment: String
+    productionRoutes: String
+    productionAlias: String
+    standbyProductionEnvironment: String
+    standbyRoutes: String
+    standbyAlias: String
     autoIdle: Int
     storageCalc: Int
     pullrequests: String
@@ -1060,6 +1156,10 @@ const typeDefs = gql`
     destinationEnvironment: String!
   }
 
+  input switchActiveStandbyInput {
+    project: ProjectInput!
+  }
+
   input GroupInput {
     id: String
     name: String
@@ -1069,8 +1169,6 @@ const typeDefs = gql`
     name: String!
     parentGroup: GroupInput
   }
-
-
 
   input AddBillingModifierInput {
     """
@@ -1275,7 +1373,9 @@ const typeDefs = gql`
     cancelDeployment(input: CancelDeploymentInput!): String
     addBackup(input: AddBackupInput!): Backup
     addProblem(input: AddProblemInput!): Problem
+    addProblemsFromSource(input: AddProblemsFromSourceInput!): String
     deleteProblem(input: DeleteProblemInput!): String
+    deleteProblemsFromSource(input: DeleteProblemsFromSourceInput!): String
     deleteBackup(input: DeleteBackupInput!): String
     deleteAllBackups: String
     addRestore(input: AddRestoreInput!): Restore
@@ -1305,6 +1405,7 @@ const typeDefs = gql`
     deployEnvironmentBranch(input: DeployEnvironmentBranchInput!): String
     deployEnvironmentPullrequest(input: DeployEnvironmentPullrequestInput!): String
     deployEnvironmentPromote(input: DeployEnvironmentPromoteInput!): String
+    switchActiveStandby(input: switchActiveStandbyInput!): Task
     addGroup(input: AddGroupInput!): GroupInterface
     updateGroup(input: UpdateGroupInput!): GroupInterface
     deleteGroup(input: DeleteGroupInput!): String
@@ -1319,7 +1420,6 @@ const typeDefs = gql`
     updateProjectBillingGroup(input: ProjectBillingGroupInput): Project
     removeProjectFromBillingGroup(input: ProjectBillingGroupInput): Project
     removeGroupsFromProject(input: ProjectGroupsInput!): Project
-
     addBillingModifier(input: AddBillingModifierInput!): BillingModifier
     updateBillingModifier(input: UpdateBillingModifierInput!): BillingModifier
     deleteBillingModifier(input: DeleteBillingModifierInput!): String

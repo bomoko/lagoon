@@ -4,14 +4,21 @@ const GraphQLDate = require('graphql-iso-date');
 const GraphQLJSON = require('graphql-type-json');
 
 const {
+  getAllProblems,
   getProblemsByEnvironmentId,
   addProblem,
   deleteProblem,
+  deleteProblemsFromSource,
+  addProblemsFromSource,
 } = require('./resources/problem/resolvers');
 
 const {
   SeverityScoreType
-} = require('./resources/problem/types')
+} = require('./resources/problem/types');
+
+const {
+  getLagoonVersion,
+} = require('./resources/lagoon/resolvers');
 
 const {
   getDeploymentsByEnvironmentId,
@@ -24,7 +31,9 @@ const {
   deployEnvironmentBranch,
   deployEnvironmentPullrequest,
   deployEnvironmentPromote,
+  switchActiveStandby,
   deploymentSubscriber,
+  getDeploymentUrl
 } = require('./resources/deployment/resolvers');
 
 const {
@@ -53,6 +62,7 @@ const {
   addOrUpdateEnvironment,
   addOrUpdateEnvironmentStorage,
   getEnvironmentByName,
+  getEnvironmentById,
   getEnvironmentByOpenshiftProjectName,
   getEnvironmentHoursMonthByEnvironmentId,
   getEnvironmentStorageByEnvironmentId,
@@ -69,6 +79,7 @@ const {
   getAllEnvironments,
   deleteAllEnvironments,
   userCanSshToEnvironment,
+  getEnvironmentUrl
 } = require('./resources/environment/resolvers');
 
 const {
@@ -112,6 +123,7 @@ const {
   getAllProjects,
   updateProject,
   deleteAllProjects,
+  getProjectUrl
 } = require('./resources/project/resolvers');
 
 const {
@@ -237,6 +249,7 @@ const resolvers /* : { [string]: ResolversObj | typeof GraphQLDate } */ = {
   },
   Deployment: {
     environment: getEnvironmentByDeploymentId,
+    uiLink: getDeploymentUrl,
   },
   Task: {
     environment: getEnvironmentByTaskId,
@@ -269,11 +282,13 @@ const resolvers /* : { [string]: ResolversObj | typeof GraphQLDate } */ = {
   },
   Query: {
     me: getMe,
+    lagoonVersion: getLagoonVersion,
     userBySshKey: getUserBySshKey,
     projectByGitUrl: getProjectByGitUrl,
     projectByName: getProjectByName,
     groupByName: getGroupByName,
     environmentByName: getEnvironmentByName,
+    environmentById: getEnvironmentById,
     environmentByOpenshiftProjectName: getEnvironmentByOpenshiftProjectName,
     userCanSshToEnvironment,
     deploymentByRemoteId: getDeploymentByRemoteId,
@@ -281,6 +296,7 @@ const resolvers /* : { [string]: ResolversObj | typeof GraphQLDate } */ = {
     allProjects: getAllProjects,
     allOpenshifts: getAllOpenshifts,
     allEnvironments: getAllEnvironments,
+    allProblems: getAllProblems,
     allGroups: getAllGroups,
     allProjectsInGroup: getAllProjectsInGroup,
     billingGroupCost: getBillingGroupCost,
@@ -289,7 +305,9 @@ const resolvers /* : { [string]: ResolversObj | typeof GraphQLDate } */ = {
   },
   Mutation: {
     addProblem,
+    addProblemsFromSource,
     deleteProblem,
+    deleteProblemsFromSource,
     addOrUpdateEnvironment,
     updateEnvironment,
     deleteEnvironment,
@@ -360,6 +378,7 @@ const resolvers /* : { [string]: ResolversObj | typeof GraphQLDate } */ = {
     deployEnvironmentBranch,
     deployEnvironmentPullrequest,
     deployEnvironmentPromote,
+    switchActiveStandby,
     addGroup,
     addBillingGroup,
     updateBillingGroup,
