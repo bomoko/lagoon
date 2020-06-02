@@ -6,6 +6,7 @@ import moment from "moment";
 const R = require('ramda');
 const { sendToLagoonLogs } = require('@lagoon/commons/src/logs');
 const { createMiscTask } = require('@lagoon/commons/src/tasks');
+const problemHelpers = require('../problem/helpers');
 const environmentHelpers = require('../environment/helpers');
 const projectHelpers = require('../project/helpers');
 const Sql = require('./sql');
@@ -58,8 +59,7 @@ const getAllProblems = async (
       rows = await query(sqlClient, prep(args));
     }
 
-    //@TODO: Define a permission for this specific case.
-    await hasPermission('project', 'viewAll');
+    await hasPermission('problem', 'viewAll');
 
   }
   catch (err) {
@@ -97,6 +97,33 @@ const getAllProblems = async (
   const withProjects = await Promise.all(problems);
   const sorted = R.sort(R.descend(R.prop('severity')), withProjects);
   return sorted.map(row => ({ ...row }));
+};
+
+const getSeverityOptions = async (
+  root,
+  args,
+  { sqlClient, hasPermission },
+) => {
+  await hasPermission('problem', 'viewAll');
+  return await problemHelpers(sqlClient).getSeverityOptions();
+};
+
+const getProblemSources = async (
+  root,
+  args,
+  { sqlClient, hasPermission },
+) => {
+  await hasPermission('problem', 'viewAll');
+
+  const preparedQuery = prepare(
+    sqlClient,
+    `SELECT DISTINCT source FROM environment_problem`,
+  );
+
+  return R.map(
+    R.prop('source'),
+      await query(sqlClient, preparedQuery(args))
+    );
 };
 
 const getProblemsByEnvironmentId = async (
@@ -243,6 +270,8 @@ const deleteProblemsFromSource = async (
 
 const Resolvers /* : ResolversObj */ = {
   getAllProblems,
+  getSeverityOptions,
+  getProblemSources,
   getProblemsByEnvironmentId,
   addProblem,
   deleteProblem,

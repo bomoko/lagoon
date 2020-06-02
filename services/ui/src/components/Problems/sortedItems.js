@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import moment from 'moment';
 import hash from 'object-hash';
 
-const useSortableData = (initialItems) => {
+const useSortableProblemsData = (initialItems) => {
     const initialConfig = {key: 'identifier', direction: 'ascending'};
     const [sortConfig, setSortConfig] = React.useState(initialConfig);
     const [currentItems, setCurrentItems] = useState(initialItems);
@@ -59,4 +59,4 @@ const useSortableData = (initialItems) => {
     return { sortedItems: currentItems, getClassNamesFor, requestSort };
 };
 
-export default useSortableData;
+export default useSortableProblemsData;

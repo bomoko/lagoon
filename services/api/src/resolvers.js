@@ -10,6 +10,7 @@ const {
   deleteProblem,
   deleteProblemsFromSource,
   addProblemsFromSource,
+  getProblemSources,
 } = require('./resources/problem/resolvers');
 
 const {
@@ -287,6 +288,7 @@ const resolvers /* : { [string]: ResolversObj | typeof GraphQLDate } */ = {
     projectByGitUrl: getProjectByGitUrl,
     projectByName: getProjectByName,
     groupByName: getGroupByName,
+    problemSources: getProblemSources,
     environmentByName: getEnvironmentByName,
     environmentById: getEnvironmentById,
     environmentByOpenshiftProjectName: getEnvironmentByOpenshiftProjectName,

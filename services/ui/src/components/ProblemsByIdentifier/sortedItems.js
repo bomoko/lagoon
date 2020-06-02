@@ -1,67 +1,73 @@
-import React, {useState} from "react";
-import moment from 'moment';
+import React, {useState, useEffect, useMemo} from "react";
 import hash from 'object-hash';
 
-const useSortableData = (initialItems) => {
-    const initialConfig = {key: 'severity', direction: 'ascending'};
-    const [sortConfig, setSortConfig] = React.useState(initialConfig);
-    const [currentItems, setCurrentItems] = useState(initialItems);
+const useSortableData = (initialItems, initialConfig = {key: 'severity', direction: 'ascending'}) => {
+  const [sortConfig, setSortConfig] = React.useState(initialConfig);
+  const [currentItems, setCurrentItems] = useState(initialItems);
 
-    const sortedItems = React.useMemo(() => {
-        let sortableItems = [...currentItems];
+  const getClassNamesFor = (name) => {
+    if (!sortConfig) return;
+    return sortConfig.key === name ? sortConfig.direction : undefined;
+  };
 
-        if (sortConfig !== null) {
-            sortableItems.sort((a, b) => {
-                let aParsed, bParsed = '';
+  const sortedItems = useMemo(() => {
+    let sortableItems = [...currentItems];
 
-                if (sortConfig.key === 'identifier') {
-                    aParsed = a[sortConfig.key].toString().toLowerCase().trim();
-                }
-                else {
-                    let problem = a.problem[sortConfig.key];
-                    aParsed = problem.toString().toLowerCase().trim();
-                }
+    if (sortConfig !== null) {
+      sortableItems.sort((a, b) => {
+        let aParsed, bParsed = '';
 
-                if (sortConfig.key === 'identifier') {
-                    bParsed = b[sortConfig.key].toString().toLowerCase().trim();
-                }
-                else {
-                    let problem = b.problem[sortConfig.key];
-                    bParsed = problem.toString().toLowerCase().trim();
-                }
+        if (sortConfig.key === 'identifier') {
+          aParsed = a[sortConfig.key].toString().toLowerCase().trim();
+          bParsed = b[sortConfig.key].toString().toLowerCase().trim();
+        }
+        else if (sortConfig.key === 'projectsAffected') {
+          aParsed = a.projects.length;
+          bParsed = b.projects.length;
+        }
+        else {
+          let aProblem = a.problem[sortConfig.key];
+          aParsed = aProblem.toString().toLowerCase().trim();
 
-                if (aParsed < bParsed) {
-                    return sortConfig.direction === 'ascending' ? -1 : 1;
-                }
-                if (aParsed > bParsed) {
-                    return sortConfig.direction === 'ascending' ? 1 : -1;
-                }
-
-                return 0;
-            });
+          let bProblem = b.problem[sortConfig.key];
+          bParsed = bProblem.toString().toLowerCase().trim();
         }
 
-        return sortableItems;
-    }, [currentItems, sortConfig]);
-
-    if (hash(sortedItems) !== hash(currentItems)) {
-        setCurrentItems(sortedItems);
+        if (aParsed < bParsed) return sortConfig.direction === 'ascending' ? -1 : 1;
+        if (aParsed > bParsed) return sortConfig.direction === 'ascending' ? 1 : -1;
+        return 0;
+      });
     }
 
-    const requestSort = (key) => {
-        let direction = 'ascending';
+    return sortableItems;
+  }, [currentItems, sortConfig]);
 
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
+  // useEffect(() => {
+  //   if (hash(sortedItems) !== hash(currentItems)) {
+  //       console.log('sortConfig: ', sortConfig);
+  //       setCurrentItems(sortedItems);
+  //       console.log('currentItems: ', currentItems);
+  //   }
+  // }, sortedItems, currentItems);
 
-       setCurrentItems(sortedItems);
-       setSortConfig({ key, direction });
+  if (hash(sortedItems) !== hash(currentItems)) {
+    setCurrentItems(sortedItems);
+  }
 
-       return { sortedItems: currentItems };
-    };
+  const requestSort = (key) => {
+    let direction = 'ascending';
 
-    return { sortedItems: currentItems, requestSort };
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+
+    setCurrentItems(sortedItems);
+    setSortConfig({ key, direction });
+
+    return { sortedItems: currentItems };
+  };
+
+  return { sortedItems: currentItems, currentSortConfig: sortConfig, getClassNamesFor, requestSort };
 };
 
 export default useSortableData;

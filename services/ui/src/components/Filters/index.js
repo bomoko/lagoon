@@ -7,9 +7,8 @@ import { color } from 'lib/variables';
 /**
  * Displays a select filter and sends state back to parent in a callback.
  */
-const SelectFilter = ({ title, options, onFilterChange, currentValues, placeholder, isMulti}) => {
-    placeholder = placeholder || '';
-    
+const SelectFilter = ({ title, options, onFilterChange, loading, defaultValue, isMulti}) => {
+
     const handleChange = (values) => {
       onFilterChange(values);
     };
@@ -38,6 +37,7 @@ const SelectFilter = ({ title, options, onFilterChange, currentValues, placehold
             name={title.toLowerCase()}
             styles={selectStyles}
             closeMenuOnSelect={false}
+            defaultValue={defaultValue}
             options={options}
             isMulti={isMulti}
             onChange={handleChange}

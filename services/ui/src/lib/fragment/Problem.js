@@ -5,11 +5,6 @@ export default gql`
       id
       identifier
       environmentId
-      project {
-        id
-        name
-        gitUrl
-      }
       data
       severity
       source

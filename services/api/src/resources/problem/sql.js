@@ -45,6 +45,10 @@ const Sql /* : SqlObj */ = {
     }
     return q.toString();
   },
+  selectSeverityOptions: () =>
+    knex('environment_problem')
+      .select('severity')
+      .toString(),
   selectProblemByDatabaseId: (id) =>
     knex('environment_problem').where('id', id).toString(),
   selectProblemsByEnvironmentId: (environmentId) =>
