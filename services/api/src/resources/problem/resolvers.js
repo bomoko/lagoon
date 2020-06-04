@@ -4,6 +4,7 @@ import {useQuery} from "@apollo/react-hooks";
 import moment from "moment";
 
 const R = require('ramda');
+const { knex, query, isPatchEmpty } = require('../../util/db');
 const { sendToLagoonLogs } = require('@lagoon/commons/src/logs');
 const { createMiscTask } = require('@lagoon/commons/src/tasks');
 const problemHelpers = require('../problem/helpers');
@@ -118,7 +119,7 @@ const getProblemSources = async (
 
 const getProblemsByEnvironmentId = async (
   { id: environmentId },
-  {},
+  {severity},
   { sqlClient, hasPermission },
 ) => {
   const environment = await environmentHelpers(sqlClient).getEnvironmentById(environmentId);
@@ -129,7 +130,10 @@ const getProblemsByEnvironmentId = async (
 
   const rows = await query(
     sqlClient,
-    Sql.selectProblemsByEnvironmentId(environmentId),
+    Sql.selectProblemsByEnvironmentId({
+      environmentId,
+      severity,
+    }),
   );
 
   return  R.sort(R.descend(R.prop('created')), rows);
@@ -243,6 +247,7 @@ const deleteProblemsFromSource = async (
     input : {
       environment: environmentId,
       source,
+      service,
     }
   },
   { sqlClient, hasPermission },
@@ -253,10 +258,10 @@ const deleteProblemsFromSource = async (
     project: environment.project,
   });
 
-  await query(sqlClient, Sql.deleteProblemsFromSource(environmentId, source));
+  await query(sqlClient, Sql.deleteProblemsFromSource(environmentId, source, service));
 
   return 'success';
-};
+}
 
 const Resolvers /* : ResolversObj */ = {
   getAllProblems,

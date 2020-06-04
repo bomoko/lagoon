@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS project (
   standby_alias                    varchar(100) NOT NULL DEFAULT 'lagoon-standby',
   auto_idle                        int(1) NOT NULL default 1,
   storage_calc                     int(1) NOT NULL default 1,
+  problems_ui                      int(1) NOT NULL default 0,
   openshift                        int REFERENCES openshift (id),
   openshift_project_pattern        varchar(300),
   development_environments_limit   int DEFAULT NULL,
@@ -223,7 +224,7 @@ CREATE TABLE IF NOT EXISTS environment_problem (
   data                     JSON,
   created                  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   deleted                  timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  UNIQUE(environment, identifier, deleted)
+  UNIQUE(environment, lagoon_service, version, identifier, deleted)
 );
 
 -- Junction Tables

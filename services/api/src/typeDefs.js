@@ -114,7 +114,7 @@ const typeDefs = gql`
   }
 
   scalar SeverityScore
-  
+
   type Problem {
     id: Int
     environmentId: Int
@@ -132,7 +132,7 @@ const typeDefs = gql`
     created: String
     deleted: String
   }
-  
+
   type ProblemIdentifier {
     identifier: String
     problem: Problem
@@ -178,6 +178,7 @@ const typeDefs = gql`
   input DeleteProblemsFromSourceInput {
     environment: Int!
     source: String!
+    service: String!
   }
 
   type File {
@@ -404,6 +405,10 @@ const typeDefs = gql`
     """
     storageCalc: Int
     """
+    Should the Problems UI be available for this Project (\`1\` or \`0\`)
+    """
+    problemsUi: Int
+    """
     Reference to OpenShift Object this Project should be deployed to
     """
     openshift: Openshift
@@ -529,7 +534,7 @@ const typeDefs = gql`
     backups(includeDeleted: Boolean): [Backup]
     tasks(id: Int): [Task]
     services: [EnvironmentService]
-    problems: [Problem]
+    problems(severity: [ProblemSeverityRating]): [Problem]
   }
 
   type EnvironmentHitsMonth {
@@ -773,6 +778,7 @@ const typeDefs = gql`
     storageCalc: Int
     developmentEnvironmentsLimit: Int
     privateKey: String
+    problemsUi: Int
   }
 
   input AddEnvironmentInput {
@@ -1010,6 +1016,7 @@ const typeDefs = gql`
     openshift: Int
     openshiftProjectPattern: String
     developmentEnvironmentsLimit: Int
+    problemsUi: Int
   }
 
   input UpdateProjectInput {

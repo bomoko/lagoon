@@ -44,6 +44,8 @@ app
       app.render(req, res, '/admin/billing', { billingGroupName: req.params.billingGroupSlug, year: req.params.yearSlug, month: req.params.monthSlug, lang: req.params.lang });
     });
 
+
+
     server.get('/projects/:projectSlug/:environmentSlug', (req, res) => {
       app.render(req, res, '/environment', {
         openshiftProjectName: req.params.environmentSlug
