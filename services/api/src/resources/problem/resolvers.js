@@ -4,7 +4,6 @@ import {useQuery} from "@apollo/react-hooks";
 import moment from "moment";
 
 const R = require('ramda');
-const { knex, query, isPatchEmpty } = require('../../util/db');
 const { sendToLagoonLogs } = require('@lagoon/commons/src/logs');
 const { createMiscTask } = require('@lagoon/commons/src/tasks');
 const problemHelpers = require('../problem/helpers');
@@ -59,9 +58,8 @@ const getAllProblems = async (
   }
 
   // Group by Problem Identifier.
-  const groupByProblemId = rows.reduce(function (obj, problem) {
+  const groupByProblemId = await rows.reduce((obj, problem) => {
     obj[problem.identifier] = obj[problem.identifier] || [];
-    problem.environmentId = problem.environment || '';
     obj[problem.identifier].push(problem);
     return obj;
   }, {});
@@ -69,10 +67,15 @@ const getAllProblems = async (
   const problemIds = Object.keys(groupByProblemId).map(async (key) => {
 
     let projects, problems = groupByProblemId[key];
+
     projects = problems.map(async (problem) => {
       const envType =  !R.isEmpty(args.envType) && args.envType;
       const {id, project, openshiftProjectName, name, envName, environmentType} =
                 await projectHelpers(sqlClient).getProjectByEnvironmentId(problem.environment, envType) || {};
+
+      await hasPermission('problem', 'view', {
+        project: !R.isNil(project) && project,
+      });
 
       await hasPermission('project', 'view', {
         project: !R.isNil(project) && project,
@@ -82,10 +85,11 @@ const getAllProblems = async (
     });
 
     const {...problem} = R.prop(0, groupByProblemId[key]);
-    return {identifier: key, problem: {...problem}, projects: await Promise.all(projects), problems: await groupByProblemId[key]};
+    return {identifier: key, problem: {...problem}, projects: await Promise.all(projects)};
   });
 
   const withProjects = await Promise.all(problemIds);
+
   const sorted = R.sort(R.descend(R.prop('severity')), withProjects);
   return sorted.map(row => ({ ...row }));
 };

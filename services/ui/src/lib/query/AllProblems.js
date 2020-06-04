@@ -17,9 +17,6 @@ export default gql`
           }
           openshiftProjectName
         }
-        problems {
-          ...problemFields
-        }
     }
   }
   ${ProblemsFragment}
