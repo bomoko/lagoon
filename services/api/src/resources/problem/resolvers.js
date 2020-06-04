@@ -10,6 +10,7 @@ const problemHelpers = require('../problem/helpers');
 const environmentHelpers = require('../environment/helpers');
 const projectHelpers = require('../project/helpers');
 const Sql = require('./sql');
+const logger = require('../../logger');
 
 const {
     knex,
@@ -37,64 +38,53 @@ const getAllProblems = async (
 ) => {
 
   let rows = [];
-  const order = args.order ? ` ORDER BY ${R.toLower(args.order)} ASC` : '';
 
   try {
-    let where = whereAnd([
-      args.createdAfter ? 'created >= :created_after' : '',
-    ]);
-
-    if (!R.isEmpty(args) && (!R.isEmpty(args.source) || !R.isEmpty(args.environment) || !R.isEmpty(args.severity))) {
-      rows = await query(
-        sqlClient,
-        Sql.selectAllProblems({
-          source: args.source,
-          environmentId: args.environment,
-          severity: args.severity,
-        })
-      );
-    }
-    else {
-      const prep = prepare(sqlClient, `SELECT * FROM environment_problem ${where}${order}`);
-      rows = await query(sqlClient, prep(args));
-    }
-
     await hasPermission('problem', 'viewAll');
 
+    if (!R.isEmpty(args) && (!R.isEmpty(args.source) || !R.isEmpty(args.environment) || !R.isEmpty(args.severity))) {
+      rows =  await problemHelpers(sqlClient).getAllProblems(args.source, args.environment, args.severity);
+    }
+    else {
+      rows = await query(sqlClient, Sql.selectAllProblems({source: []}));
+    }
   }
   catch (err) {
+    console.log(err);
     if (!keycloakGrant) {
       logger.warn('No grant available for getAllProblems');
       return [];
     }
   }
 
-  let groupByProblemId = rows.reduce(function (obj, problem) {
+  // Group by Problem Identifier.
+  const groupByProblemId = rows.reduce(function (obj, problem) {
     obj[problem.identifier] = obj[problem.identifier] || [];
     problem.environmentId = problem.environment || '';
     obj[problem.identifier].push(problem);
     return obj;
   }, {});
 
-  let problems = Object.keys(groupByProblemId).map(async (key) => {
+  const problemIds = Object.keys(groupByProblemId).map(async (key) => {
 
     let projects, problems = groupByProblemId[key];
-
     projects = problems.map(async (problem) => {
-      const {id, project, openshiftProjectName, name, environmentName} = await projectHelpers(sqlClient).getProjectByEnvironmentId(problem.environment) || {};
+      const envType =  !R.isEmpty(args.envType) && args.envType;
+      const {id, project, openshiftProjectName, name, envName, environmentType} =
+                await projectHelpers(sqlClient).getProjectByEnvironmentId(problem.environment, envType) || {};
 
       await hasPermission('project', 'view', {
         project: !R.isNil(project) && project,
       });
 
-      return (!R.isNil(id)) && {id, project, openshiftProjectName, name, environments: {name: environmentName}};
+      return (!R.isNil(id)) && {id, project, openshiftProjectName, name, environments: {name: envName}, type: environmentType};
     });
 
     const {...problem} = R.prop(0, groupByProblemId[key]);
     return {identifier: key, problem: {...problem}, projects: await Promise.all(projects), problems: await groupByProblemId[key]};
   });
 
-  const withProjects = await Promise.all(problems);
+  const withProjects = await Promise.all(problemIds);
   const sorted = R.sort(R.descend(R.prop('severity')), withProjects);
   return sorted.map(row => ({ ...row }));
 };

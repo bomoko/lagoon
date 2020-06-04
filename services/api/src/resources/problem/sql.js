@@ -30,18 +30,24 @@ const Sql /* : SqlObj */ = {
   selectAllProblems: ({
     source = [],
     environmentId,
+    environmentType = [],
     severity = [],
   }) => {
-    let q = knex('environment_problem').select(standardEnvironmentReturn)
-    .where('deleted', '=', '0000-00-00 00:00:00');
+    let q = knex('environment_problem as p')
+    .leftJoin('environment as e', 'e.id', '=', 'p.environment')
+    .where('p.deleted', '=', '0000-00-00 00:00:00')
+    .select('p.*', {environmentName: 'e.name'}, 'e.environmentType');
+    if (environmentType.length > 0) {
+      q.where('p.environmentType', environmentType);
+    }
     if (source.length > 0) {
-      q.whereIn('source', source);
+      q.whereIn('p.source', source);
     }
     if (environmentId) {
-      q.where('environment', environmentId);
+      q.where('p.environment', environmentId);
     }
     if (severity.length > 0) {
-      q.whereIn('severity', severity);
+      q.whereIn('p.severity', severity);
     }
     return q.toString();
   },

@@ -115,7 +115,7 @@ const ProblemsByIdentifier = ({ problems }) => {
                   </div>
                   <div className="right-content">
                     <div className="fieldWrapper">
-                      <label>Projects affected:</label>
+                      <label>Projects:Environments affected:</label>
                       {projects.filter(p => p != null).slice(0, moreProjectsLimit).map(project => {
                         const envName = project.environments.map(e => e.name) || {};
 

@@ -21,7 +21,7 @@ const Sql /* : SqlObj */ = {
     // }
     return q.toString();
   },
-  selectEnvironmentByNameAndProject: (name /* : string */, projectId /* : numbere */) =>
+  selectEnvironmentByNameAndProject: (name /* : string */, projectId /* : number */) =>
     knex('environment')
       .where('name', '=', name)
       .andWhere('project', '=', projectId)

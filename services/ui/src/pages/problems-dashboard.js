@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import * as R from 'ramda';
 import Head from 'next/head';
 import { Query } from 'react-apollo';
@@ -16,11 +16,14 @@ import { bp } from 'lib/variables';
  * Displays the problems overview page.
  */
 const ProblemsDashboardPage = () => {
-  const [source, setSource] = React.useState([]);
-  const [severity, setSeverity] = React.useState(['CRITICAL']);
+  const [source, setSource] = useState([]);
+  const [severity, setSeverity] = useState(['CRITICAL']);
+  const [envTypeChecked, setEnvTypeChecked] = useState(true);
 
   const { data: severities, loading: severityLoading } = useQuery(getSeverityEnumQuery);
   const { data: sources, loading: sourceLoading } = useQuery(getSourceOptions);
+
+  const handleEnvTypeCheck = () => setEnvTypeChecked(!envTypeChecked);
 
   const handleSourceChange = (source) => {
     let values = source && source.map(s => s.value) || [];
@@ -65,6 +68,12 @@ const ProblemsDashboardPage = () => {
               isMulti
             />
         </div>
+        <div className="extra-filters">
+          <div className="checkbox">
+              <label>Production only: </label>
+              <input name="env-type" onClick={handleEnvTypeCheck} defaultChecked={envTypeChecked} type="checkbox" />
+          </div>
+        </div>
         <style jsx>{`
             .filters-wrapper {
               margin: 38px calc((100vw / 16) * 1);
@@ -77,6 +86,7 @@ const ProblemsDashboardPage = () => {
               .filters {
                 display: flex;
                 justify-content: space-between;
+                padding-bottom: 1em;
               }
             }
           `}</style>
@@ -85,7 +95,8 @@ const ProblemsDashboardPage = () => {
         query={AllProblemsQuery}
         variables={{
             source: source,
-            severity: severity
+            severity: severity,
+            envType: envTypeChecked ? 'PRODUCTION' : 'DEVELOPMENT',
         }}
         displayName="AllProblemsQuery"
       >

@@ -261,6 +261,7 @@ const Problems = ({ problems }) => {
               padding: 20px;
               width: 100%;
             }
+          }
         `}</style>
       </div>
     );

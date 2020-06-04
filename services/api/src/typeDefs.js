@@ -684,7 +684,7 @@ const typeDefs = gql`
     """
     Returns all Problems matching given filter (all if no filter defined)
     """
-    allProblems(source: [String], project: Int, environment: Int, identifier: String, severity: [ProblemSeverityRating]): [ProblemIdentifier]
+    allProblems(source: [String], project: Int, environment: Int, envType: EnvType, identifier: String, severity: [ProblemSeverityRating]): [ProblemIdentifier]
     problemSources: [String]
     """
     Returns all Groups matching given filter (all if no filter defined)
