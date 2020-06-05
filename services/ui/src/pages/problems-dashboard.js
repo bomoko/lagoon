@@ -12,6 +12,11 @@ import MainLayout from 'layouts/MainLayout';
 import SelectFilter from 'components/Filters';
 import { bp } from 'lib/variables';
 
+const EnvType = Object.freeze({
+    PRODUCTION:   'PRODUCTION',
+    DEVELOPMENT:  'DEVELOPMENT'
+});
+
 /**
  * Displays the problems overview page.
  */
@@ -70,8 +75,8 @@ const ProblemsDashboardPage = () => {
         </div>
         <div className="extra-filters">
           <div className="checkbox">
-              <label>Production only: </label>
-              <input name="env-type" onClick={handleEnvTypeCheck} defaultChecked={envTypeChecked} type="checkbox" />
+            <label>Production / Development environments only: </label>
+            <input name="env-type" onClick={handleEnvTypeCheck} defaultChecked={envTypeChecked} type="checkbox" />
           </div>
         </div>
         <style jsx>{`
@@ -96,7 +101,7 @@ const ProblemsDashboardPage = () => {
         variables={{
             source: source,
             severity: severity,
-            envType: envTypeChecked ? 'PRODUCTION' : 'DEVELOPMENT',
+            envType: envTypeChecked ? EnvType.PRODUCTION : EnvType.DEVELOPMENT
         }}
         displayName="AllProblemsQuery"
       >
@@ -120,6 +125,9 @@ const ProblemsDashboardPage = () => {
                     <li className="result"><label>High: </label>{high}</li>
                     <li className="result"><label>Medium: </label>{medium}</li>
                     <li className="result"><label>Low: </label>{low}</li>
+                  </ul>
+                  <ul className="overview-list">
+                    <li className="result"><label>Showing: </label>{envTypeChecked ? 'Production' : 'Development'} environments</li>
                   </ul>
                 </div>
                 <ProblemsByIdentifier problems={problems || []}/>

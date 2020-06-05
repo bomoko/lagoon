@@ -4,7 +4,7 @@ export default gql`
   fragment problemFields on Problem {
       id
       identifier
-      environmentId
+      environment
       data
       severity
       source

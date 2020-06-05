@@ -106,7 +106,14 @@ app
     );
 
     server.get(
-      '/problems',
+      '/problems/project',
+      (req, res) => {
+          app.render(req, res, '/problems-dashboard-by-project');
+      }
+    );
+
+    server.get(
+      '/problems/identifier',
       (req, res) => {
           app.render(req, res, '/problems-dashboard');
       }

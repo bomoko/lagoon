@@ -36,14 +36,13 @@ const getAllProblems = async (
     keycloakGrant,
   }
 ) => {
-
   let rows = [];
 
   try {
     await hasPermission('problem', 'viewAll');
 
-    if (!R.isEmpty(args) && (!R.isEmpty(args.source) || !R.isEmpty(args.environment) || !R.isEmpty(args.severity))) {
-      rows =  await problemHelpers(sqlClient).getAllProblems(args.source, args.environment, args.severity);
+    if (!R.isEmpty(args)) {
+      rows = await problemHelpers(sqlClient).getAllProblems(args.source, args.environment, args.envType, args.severity);
     }
     else {
       rows = await query(sqlClient, Sql.selectAllProblems({source: []}));
@@ -65,17 +64,11 @@ const getAllProblems = async (
   }, {});
 
   const problemIds = Object.keys(groupByProblemId).map(async (key) => {
-
     let projects, problems = groupByProblemId[key];
-
     projects = problems.map(async (problem) => {
       const envType =  !R.isEmpty(args.envType) && args.envType;
       const {id, project, openshiftProjectName, name, envName, environmentType} =
                 await projectHelpers(sqlClient).getProjectByEnvironmentId(problem.environment, envType) || {};
-
-      await hasPermission('problem', 'view', {
-        project: !R.isNil(project) && project,
-      });
 
       await hasPermission('project', 'view', {
         project: !R.isNil(project) && project,
@@ -85,11 +78,11 @@ const getAllProblems = async (
     });
 
     const {...problem} = R.prop(0, groupByProblemId[key]);
-    return {identifier: key, problem: {...problem}, projects: await Promise.all(projects)};
+    const getProjects = await Promise.all(projects);
+    return {identifier: key, problem: {...problem}, projects: getProjects};
   });
 
   const withProjects = await Promise.all(problemIds);
-
   const sorted = R.sort(R.descend(R.prop('severity')), withProjects);
   return sorted.map(row => ({ ...row }));
 };
@@ -123,7 +116,7 @@ const getProblemSources = async (
 
 const getProblemsByEnvironmentId = async (
   { id: environmentId },
-  {severity},
+  {severity, source},
   { sqlClient, hasPermission },
 ) => {
   const environment = await environmentHelpers(sqlClient).getEnvironmentById(environmentId);
@@ -137,6 +130,7 @@ const getProblemsByEnvironmentId = async (
     Sql.selectProblemsByEnvironmentId({
       environmentId,
       severity,
+      source,
     }),
   );
 

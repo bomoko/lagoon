@@ -11,12 +11,16 @@ const { prepare, query } = require('../../util/db');
 const Sql = require('./sql');
 
 const Helpers = (sqlClient /* : MariaSQL */) => {
-    const getAllProblems = async (source, environment, severity) => {
-      const problems = await query(
+    const getAllProblems = async (source, environment, envType, severity) => {
+
+        const environmentType = envType.map(t => t.toLowerCase());
+
+        const problems = await query(
         sqlClient,
         Sql.selectAllProblems({
           source,
           environmentId: environment,
+          environmentType,
           severity,
         })
       );

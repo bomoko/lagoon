@@ -178,6 +178,10 @@ const getProjectByName = async (
   const rows = await query(sqlClient, prep(args));
   const project = rows[0];
 
+  if (!project) {
+    return null;
+  }
+
   await hasPermission('project', 'view', {
     project: project.id,
   });

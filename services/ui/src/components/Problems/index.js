@@ -91,7 +91,7 @@ const Problems = ({ problems }) => {
           {!sortedItems.filter(item => filterResults(item)) && <div className="data-none">No Problems</div>}
           {sortedItems.filter(item => filterResults(item)).map((problem) => {
 
-            const {id, description, environmentId, project, data, service, deleted, version, fixedVersion,
+            const {id, description, environment, project, data, service, deleted, version, fixedVersion,
               links, __typename, ...selectedColumns} = problem;
 
               return (
