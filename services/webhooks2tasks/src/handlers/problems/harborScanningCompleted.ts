@@ -33,7 +33,7 @@ const DEFAULT_REPO_DETAILS_MATCHER = {
 // ];
 
 
- async function harborScanningCompleted(
+ export async function harborScanningCompleted(
   WebhookRequestData,
   channelWrapperWebhooks
 ) {
@@ -48,11 +48,7 @@ const DEFAULT_REPO_DETAILS_MATCHER = {
       lagoonEnvironmentName,
       lagoonServiceName,
       harborScanId,
-    } = validateAndTransformIncomingWebhookdata(body);
-
-    let harborScanPatternMatchers = await getProblemHarborScanMatches();
-    console.log(matchRepositoryAgainstPatterns(repository.repo_full_name, harborScanPatternMatchers));
-    return;
+    } = await validateAndTransformIncomingWebhookdata(body);
 
     if(scanOverview.scan_status !== HARBOR_WEBHOOK_SUCCESSFUL_SCAN) {
       sendToLagoonLogs(
@@ -115,7 +111,7 @@ const DEFAULT_REPO_DETAILS_MATCHER = {
  *
  * @param {*} rawData
  */
-const validateAndTransformIncomingWebhookdata = (rawData) => {
+const validateAndTransformIncomingWebhookdata = async (rawData) => {
   let { resources, repository } = rawData.event_data;
 
   if (!repository.repo_full_name) {
@@ -133,11 +129,13 @@ const validateAndTransformIncomingWebhookdata = (rawData) => {
     return obj;
   });
 
+  let harborScanPatternMatchers = await getProblemHarborScanMatches();
+
   let {
     lagoonProjectName,
     lagoonEnvironmentName,
     lagoonServiceName,
-   } = matchRepositoryAgainstPatterns(repository.repo_full_name, testPatternMatchers);
+   } = matchRepositoryAgainstPatterns(repository.repo_full_name, harborScanPatternMatchers.allProblemHarborScanMatchers);
 
   return {
     resources,

@@ -231,9 +231,9 @@ CREATE TABLE IF NOT EXISTS problem_harbor_scan_matcher (
   id                              int NOT NULL auto_increment PRIMARY KEY,
   name                            varchar(100) NOT NULL,
   description                     text NULL,
-  default_lagoon_project          int REFERENCES project (id),
-  default_lagoon_environment      int REFERENCES project (id),
-  default_lagoon_service_name     varchar(100) NULL,
+  default_lagoon_project          varchar(300) NULL,
+  default_lagoon_environment      varchar(300) NULL,
+  default_lagoon_service_name     varchar(300) NULL,
   regex                           varchar(300) NOT NULL
 );
 

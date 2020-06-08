@@ -136,8 +136,8 @@ const typeDefs = gql`
     id: Int
     name: String
     description: String
-    defaultLagoonProject: Int
-    defaultLagoonEnvironment: Int
+    defaultLagoonProject: String
+    defaultLagoonEnvironment: String
     defaultLagoonService: String
     regex: String
   }
@@ -145,8 +145,8 @@ const typeDefs = gql`
   input AddProblemHarborScanMatchInput {
     name: String!
     description: String!
-    defaultLagoonProject: Int
-    defaultLagoonEnvironment: Int
+    defaultLagoonProject: String
+    defaultLagoonEnvironment: String
     defaultLagoonService: String
     regex: String!
   }

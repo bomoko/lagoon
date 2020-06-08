@@ -124,6 +124,9 @@ export const getProblemHarborScanMatches = async (
   args,
   { sqlClient, hasPermission },
 ) => {
+
+  await hasPermission('harbor_scan_match', 'view', {});
+
   const rows = await query(
     sqlClient,
     Sql.selectAllProblemHarborScanMatches(),
@@ -146,9 +149,8 @@ export const addProblemHarborScanMatch = async (
   },
   { sqlClient, hasPermission },
 ) => {
-  // // await hasPermission('problem', 'add', {
-  // //   project: environment.project,
-  // // });
+
+  await hasPermission('harbor_scan_match', 'add', {});
 
   const {
     info: { insertId },
@@ -156,6 +158,7 @@ export const addProblemHarborScanMatch = async (
     sqlClient,
     Sql.insertProblemHarborScanMatch(
       {
+        id: null,
         name,
         description,
         default_lagoon_project: defaultLagoonProject,
@@ -171,7 +174,7 @@ export const addProblemHarborScanMatch = async (
 };
 
 
-const deleteProblemHarborScanMatch = async (
+export const deleteProblemHarborScanMatch = async (
   root,
   {
     input : {
@@ -181,9 +184,7 @@ const deleteProblemHarborScanMatch = async (
   { sqlClient, hasPermission },
 ) => {
 
-  // await hasPermission('problem', 'delete', {
-  //   project: environment.project,
-  // });
+  await hasPermission('harbor_scan_match', 'delete', {});
 
   await query(sqlClient, Sql.deleteProblemHarborScanMatch(id));
 
