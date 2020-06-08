@@ -1,6 +1,6 @@
 // @flow
 
-const { knex } = require('../../util/db');
+import { knex } from '../../util/db';
 
 /* ::
 
@@ -36,7 +36,7 @@ const standardProblemHarborScanMatchReturn = {
     regex: 'regex'
   };
 
-const Sql /* : SqlObj */ = {
+export const Sql /* : SqlObj */ = {
   selectAllProblems: () =>
     knex('environment_problem')
     .select(standardEnvironmentReturn).toString(),
@@ -54,9 +54,9 @@ const Sql /* : SqlObj */ = {
     }
     return q.toString()
   },
-  insertProblem: ({id, environment, severity, severity_score, identifier, lagoon_service, source,
+  insertProblem: ({environment, severity, severity_score, identifier, lagoon_service, source,
                       associated_package, description, version, fixed_version, links, data, created}) =>
-    knex('environment_problem').insert({id, environment, severity, severity_score, identifier, lagoon_service, source,
+    knex('environment_problem').insert({environment, severity, severity_score, identifier, lagoon_service, source,
         associated_package, description, version, fixed_version, links, data, created}).toString(),
   deleteProblem: (environment, identifier) =>
     knex('environment_problem')
@@ -107,5 +107,3 @@ const Sql /* : SqlObj */ = {
           id: id,
         }).delete().toString(),
 };
-
-module.exports = Sql;

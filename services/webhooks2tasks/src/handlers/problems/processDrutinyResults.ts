@@ -1,20 +1,19 @@
 // @flow
 
-const { logger } = require('@lagoon/commons/src/local-logging');
-const {
+import {
   addProblem,
   deleteProblemsFromSource,
   getProblemsforProjectEnvironment,
-} = require('@lagoon/commons/src/api');
-const { sendToLagoonLogs } = require('@lagoon/commons/src/logs');
+} from'@lagoon/commons/dist/api';
+import { sendToLagoonLogs } from '@lagoon/commons/dist/logs';
 const DRUTINY_VULNERABILITY_SOURCE_BASE = 'Drutiny';
 const DRUTINY_SERVICE_NAME = 'cli';
 const DRUTINY_PACKAGE_NAME = ''
-const {
+import {
   getProjectByName,
   getEnvironmentByName,
-} = require('@lagoon/commons/src/api');
-const { generateProblemsWebhookEventName } = require("./webhookHelpers");
+} from '@lagoon/commons/dist/api';
+import { generateProblemsWebhookEventName } from "./webhookHelpers";
 
 const ERROR_STATES = ["error", "failure"];
 const SEVERITY_LEVELS = [
@@ -28,12 +27,12 @@ const SEVERITY_LEVELS = [
 ];
 const DEFAULT_SEVERITY_LEVEL = "NEGLIGIBLE";
 
-async function processDrutinyResultset(
-  webhook: WebhookRequestData,
+export async function processDrutinyResultset(
+  WebhookRequestData,
   channelWrapperWebhooks
 ) {
 
-  const { webhooktype, event, uuid, body } = webhook;
+  const { webhooktype, event, uuid, body } = WebhookRequestData;
   const { lagoonInfo, results, profile: drutinyProfile } = body;
 
   try {
@@ -95,6 +94,11 @@ async function processDrutinyResultset(
                 description: element.description,
                 data: JSON.stringify(element),
                 service: DRUTINY_SERVICE_NAME,
+                severityScore: null,
+                associatedPackage: 'Drupal',
+                version: null,
+                fixedVersion: null,
+                links: null,
               })
                 .then(() => {
                     sendToLagoonLogs(
@@ -150,5 +154,3 @@ const convertSeverityLevels = (level) => {
 
   return DEFAULT_SEVERITY_LEVEL;
 }
-
-module.exports = processDrutinyResultset;

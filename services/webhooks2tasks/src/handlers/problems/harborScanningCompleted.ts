@@ -1,18 +1,17 @@
 // @flow
 
-const { logger } = require('@lagoon/commons/src/local-logging');
-const { sendToLagoonLogs } = require('@lagoon/commons/src/logs');
-const {
+import { sendToLagoonLogs } from '@lagoon/commons/dist/logs';
+import {
   getVulnerabilitiesPayloadFromHarbor,
-} = require('@lagoon/commons/src/harborApi');
-const R = require('ramda');
-const uuid4 = require('uuid4');
+} from '@lagoon/commons/dist/harborApi';
+import * as R from 'ramda';
+import uuid4 from 'uuid4';
 
-const {
+import {
   getProjectByName,
   getEnvironmentByName,
   getProblemHarborScanMatches,
-} = require('@lagoon/commons/src/api');
+} from '@lagoon/commons/dist/api';
 
 const HARBOR_WEBHOOK_SUCCESSFUL_SCAN = "Success";
 
@@ -34,12 +33,12 @@ const DEFAULT_REPO_DETAILS_MATCHER = {
 // ];
 
 
-async function harborScanningCompleted(
-  webhook: WebhookRequestData,
+ async function harborScanningCompleted(
+  WebhookRequestData,
   channelWrapperWebhooks
 ) {
-  const { webhooktype, event, uuid, body } = webhook;
-
+  const { webhooktype, event, uuid, body } = WebhookRequestData;
+  const HARBOR_WEBHOOK_SUCCESSFUL_SCAN = "Success";
   try {
     let {
       resources,
@@ -87,7 +86,7 @@ async function harborScanningCompleted(
     };
 
     const webhookData = generateWebhookData(
-      webhook.giturl,
+      WebhookRequestData.giturl,
       'problems',
       'harbor:scanningresultfetched',
       messageBody
@@ -208,8 +207,9 @@ const generateWebhookData = (
 
 const extractVulnerabilities = (harborScanResponse) => {
   for (let [key, value] of Object.entries(harborScanResponse)) {
-    if (value.hasOwnProperty('vulnerabilities')) {
-      return value.vulnerabilities;
+    let potentialStore: any = value;
+    if (potentialStore.hasOwnProperty('vulnerabilities')) {
+      return potentialStore.vulnerabilities;
     }
   }
   throw new ProblemsHarborConnectionError(
@@ -244,4 +244,3 @@ class ProblemsInvalidWebhookData extends Error {
   }
 }
 
-module.exports = harborScanningCompleted;

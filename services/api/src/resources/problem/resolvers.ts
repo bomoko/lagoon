@@ -1,11 +1,11 @@
 // @flow
 
-const R = require('ramda');
-const { sendToLagoonLogs } = require('@lagoon/commons/src/logs');
-const { createMiscTask } = require('@lagoon/commons/src/tasks');
-const { knex, query, isPatchEmpty } = require('../../util/db');
-const environmentHelpers = require('../environment/helpers');
-const Sql = require('./sql');
+import * as R from 'ramda';
+import { sendToLagoonLogs } from '@lagoon/commons/src/logs';
+import { createMiscTask } from '@lagoon/commons/src/tasks';
+import { knex, query, isPatchEmpty } from '../../util/db';
+import { Helpers as environmentHelpers } from '../environment/helpers';
+import { Sql } from './sql';
 
 /* ::
 
@@ -13,7 +13,7 @@ import type {ResolversObj} from '../';
 
 */
 
-const getProblemsByEnvironmentId = async (
+export const getProblemsByEnvironmentId = async (
   { id: environmentId },
   {severity},
   { sqlClient, hasPermission },
@@ -35,7 +35,7 @@ const getProblemsByEnvironmentId = async (
   return  R.sort(R.descend(R.prop('created')), rows);
 };
 
-const addProblem = async (
+export const addProblem = async (
   root,
   {
     input: {
@@ -56,7 +56,6 @@ const addProblem = async (
   } = await query(
     sqlClient,
     Sql.insertProblem({
-      id,
       severity,
       severity_score: severityScore,
       lagoon_service: service,
@@ -77,47 +76,7 @@ const addProblem = async (
   return R.prop(0, rows);
 };
 
-/**
- * Essentially this is a bulk insert
- */
-const addProblemsFromSource = async(
-  root,
-  {
-    input: {
-      environment: environmentId,
-      source,
-      problems,
-    }
-  },
-  { sqlClient, hasPermission }
-  ) => {
-    const environment = await environmentHelpers(sqlClient).getEnvironmentById(environmentId);
-
-    await hasPermission('problem', 'add', {
-      project: environment.project,
-    });
-
-    //NOTE: this actually works - let's move it into a transaction ...
-     const Promises = problems.map(element => query(
-        sqlClient,
-        Sql.insertProblem({
-          severity: element.severity,
-          severity_score: element.severityScore,
-          identifier: element.identifier,
-          environment: environmentId,
-          source,
-          data: element.data,
-        })
-      ));
-
-      let rets = [];
-      //TODO: use Rambda to pull these props off - build some kind of fallback logic for errors ...
-      await Promise.all(Promises).then(values => rets = values.map(e => e.info.insertId));
-      // return rets;
-};
-
-
-const deleteProblem = async (
+export const deleteProblem = async (
   root,
   {
     input : {
@@ -138,7 +97,7 @@ const deleteProblem = async (
   return 'success';
 };
 
-const deleteProblemsFromSource = async (
+export const deleteProblemsFromSource = async (
   root,
   {
     input : {
@@ -160,7 +119,7 @@ const deleteProblemsFromSource = async (
   return 'success';
 }
 
-const getProblemHarborScanMatches = async (
+export const getProblemHarborScanMatches = async (
   root,
   args,
   { sqlClient, hasPermission },
@@ -173,7 +132,7 @@ const getProblemHarborScanMatches = async (
   return rows;
 };
 
-const addProblemHarborScanMatch = async (
+export const addProblemHarborScanMatch = async (
   root,
   {
     input: {
@@ -230,17 +189,3 @@ const deleteProblemHarborScanMatch = async (
 
   return 'success';
 }
-
-
-const Resolvers /* : ResolversObj */ = {
-  getProblemsByEnvironmentId,
-  addProblem,
-  deleteProblem,
-  deleteProblemsFromSource,
-  addProblemsFromSource,
-  getProblemHarborScanMatches,
-  addProblemHarborScanMatch,
-  deleteProblemHarborScanMatch,
-};
-
-module.exports = Resolvers;
