@@ -137,6 +137,7 @@ const typeDefs = gql`
     identifier: String
     problem: Problem
     projects: [Project]
+    problems: [Problem]
   }
 
   input AddProblemInput {

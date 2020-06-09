@@ -13,9 +13,9 @@ const Sql = require('./sql');
 const Helpers = (sqlClient /* : MariaSQL */) => {
     const getAllProblems = async (source, environment, envType, severity) => {
 
-        const environmentType = envType.map(t => t.toLowerCase());
+      const environmentType = envType.map(t => t.toLowerCase());
 
-        const problems = await query(
+      const problems = await query(
         sqlClient,
         Sql.selectAllProblems({
           source,
@@ -24,10 +24,6 @@ const Helpers = (sqlClient /* : MariaSQL */) => {
           severity,
         })
       );
-
-      if (!problems) {
-        throw new Error('Unauthorized');
-      }
 
       return problems;
     };

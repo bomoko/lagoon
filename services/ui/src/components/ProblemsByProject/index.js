@@ -83,8 +83,6 @@ const ProblemsByProject = ({ problems }) => {
           {!sortedItems.filter(problem => filterResults(problem)).length && <div className="data-none">No Problems</div>}
           {sortedItems.filter(problem => filterResults(problem)).map((problem) => {
 
-console.log(problem);
-
             const {identifier, source, severity, associatedPackage } = problem;
             const columns = {identifier, source, severity, associatedPackage};
 

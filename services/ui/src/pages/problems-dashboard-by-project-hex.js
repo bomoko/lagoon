@@ -1,15 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import * as R from 'ramda';
 import Head from 'next/head';
-import { Query } from 'react-apollo';
 import {useQuery} from "@apollo/react-hooks";
 import AllProjectsProblemsQuery from 'lib/query/AllProjectsProblems';
-import AllProblemsByProjectQuery from 'lib/query/AllProblemsByProject';
 import getSeverityEnumQuery, {getProjectOptions, getSourceOptions} from 'components/Filters/helpers';
 import withQueryLoadingNoHeader from 'lib/withQueryLoadingNoHeader';
 import withQueryErrorNoHeader from 'lib/withQueryErrorNoHeader';
 import ProblemsByProject from "components/ProblemsByProject";
 import Accordion from "components/Accordion";
+import Honeycomb from "components/Honeycomb";
 import MainLayout from 'layouts/MainLayout';
 import SelectFilter from 'components/Filters';
 import { bp } from 'lib/variables';
@@ -22,7 +21,7 @@ const EnvType = Object.freeze({
 /**
  * Displays the problems overview page by project.
  */
-const ProblemsDashboardProductPage = () => {
+const ProblemsDashboardProductHexPage = () => {
   const [projectSelect, setProjectSelect] = useState([]);
   const [source, setSource] = useState([]);
   const [severity, setSeverity] = useState(['CRITICAL']);
@@ -107,99 +106,30 @@ const ProblemsDashboardProductPage = () => {
             onFilterChange={handleEnvTypeChange}
           />
         </div>
-        <style jsx>{`
-          .filters-wrapper, .project-filter {
-            margin: 32px calc((100vw / 16) * 1);
-            @media ${bp.wideUp} {
-              margin: 32px calc((100vw / 16) * 2);
-            }
-            @media ${bp.extraWideUp} {
-              margin: 32px calc((100vw / 16) * 3);
-            }
-            .filters {
-              display: flex;
-              justify-content: space-between;
-
-              &:first-child {
-                padding-bottom: 1em;
-              }
-            }
-          }
-        `}</style>
       </div>
       <div className="content-wrapper">
-        {projects && projects.allProjects.map(project => {
-          const filterProjectSelect = projectSelect.filter(s => {
-            return s.includes(project.name);
-          }).toString() || '';
-
-          return (
-            <Query
-              query={AllProblemsByProjectQuery}
-              variables={{
-                name: projectSelect.length ? filterProjectSelect : project.name,
-                source: source,
-                severity: severity,
-                envType: envType
-              }}
-              displayName="AllProblemsByProjectQuery"
-            >
-              {R.compose(
-                withQueryLoadingNoHeader,
-                withQueryErrorNoHeader
-              )(({data: { project }}) => {
-              const {environments, id, name} = project || [];
-              const filterProblems = environments && environments.filter(e => e instanceof Object).map(e => {
-                return e.problems;
-              });
-
-              const problemsPerProject = Array.prototype.concat.apply([], filterProblems);
-              const critical = problemsPerProject.filter(p => p.severity === 'CRITICAL').length;
-              const high = problemsPerProject.filter(p => p.severity === 'HIGH').length;
-              const medium = problemsPerProject.filter(p => p.severity === 'MEDIUM').length;
-              const low = problemsPerProject.filter(p => p.severity === 'LOW').length;
-
-              const columns = {name, problemCount: problemsPerProject.length};
-
-              return (
-              <>
-                {environments &&
-                  <div key={name + id} className="content">
-                    <div className="project-overview">
-                        <Accordion
-                          columns={columns}
-                          defaultValue={false}
-                          className="data-row row-heading"
-                          minified={true}
-                        >
-                          {!environments.length && <div className="data-none">No Environments</div>}
-                          <div className="overview">
-                              <ul className="overview-list">
-                                <li className="result"><label>Results: </label>{Object.keys(problemsPerProject).length} Problems</li>
-                                <li className="result"><label>Critical: </label>{critical}</li>
-                                <li className="result"><label>High: </label>{high}</li>
-                                <li className="result"><label>Medium: </label>{medium}</li>
-                                <li className="result"><label>Low: </label>{low}</li>
-                              </ul>
-                              {/*<ul className="overview-list">*/}
-                              {/*<li className="result"><label>Showing: </label>{envTypeChecked ? 'Production' : 'Development'} environments</li>*/}
-                              {/*</ul>*/}
-                          </div>
-                          {environments && environments.map(environment => (
-                            <div className="environment-wrapper">
-                              <label className="environment"><h5>Environment: {environment.name}</h5></label>
-                              <ProblemsByProject key={environment.id} problems={environment.problems || [] } minified={true}/>
-                            </div>
-                          ))}
-                        </Accordion>
-                    </div>
-                  </div>
-                }
-              </>);
-            })}</Query>
-          )
-        })}
+        <div className="overview">
+          <Honeycomb data={!R.isNil(projectsProblems) && projectsProblems}/>
+        </div>
+      </div>
       <style jsx>{`
+        .filters-wrapper, .project-filter {
+          margin: 32px calc((100vw / 16) * 1);
+          @media ${bp.wideUp} {
+            margin: 32px calc((100vw / 16) * 2);
+          }
+          @media ${bp.extraWideUp} {
+            margin: 32px calc((100vw / 16) * 3);
+          }
+          .filters {
+            display: flex;
+            justify-content: space-between;
+
+            &:first-child {
+              padding-bottom: 1em;
+            }
+          }
+        }
         .content-wrapper {
           h2 {
             margin: 38px calc((100vw / 16) * 1) 0;
@@ -240,9 +170,8 @@ const ProblemsDashboardProductPage = () => {
           }
         }
       `}</style>
-      </div>
     </MainLayout>
   </>);
 };
 
-export default ProblemsDashboardProductPage;
+export default ProblemsDashboardProductHexPage;

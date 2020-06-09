@@ -55,7 +55,7 @@ const ProblemsDashboardPage = () => {
     </Head>
     <MainLayout>
       <div className="filters-wrapper">
-        <h2>Problems Dashboard</h2>
+        <h2>Problems Dashboard By Identifier</h2>
         <div className="filters">
             <SelectFilter
               title="Source"

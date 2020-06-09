@@ -2,12 +2,13 @@ import React, { useState, Fragment } from "react";
 import PropTypes from "prop-types";
 import moment from 'moment';
 
-const Accordion = ({ children, defaultValue = true, className = "", onToggle, columns }) => {
+const Accordion = ({ children, defaultValue = true, minified = false, className = "", onToggle, columns }) => {
     const [visibility, setVisibility] = useState(defaultValue);
+    const accordionType = minified ? 'minified' : 'normal';
 
     return (
         <div className={className}>
-            <div className="accordion-heading" onClick={() => {
+            <div className={`accordion-heading ${accordionType}`} onClick={() => {
                 setVisibility(!visibility);
                 if (onToggle) onToggle(!visibility);
             }}>
@@ -43,6 +44,10 @@ const Accordion = ({ children, defaultValue = true, className = "", onToggle, co
                     padding: 20px 12px;
                     border: 1px solid #efefef;
                     cursor: pointer;
+
+                    &.minified {
+                      padding: 0.5em 1em;
+                    }
 
                     > div {
                       padding: 0 6px;

@@ -79,7 +79,7 @@ const getAllProblems = async (
 
     const {...problem} = R.prop(0, groupByProblemId[key]);
     const getProjects = await Promise.all(projects);
-    return {identifier: key, problem: {...problem}, projects: getProjects};
+    return {identifier: key, problem: {...problem}, projects: getProjects, problems: groupByProblemId[key]};
   });
 
   const withProjects = await Promise.all(problemIds);
