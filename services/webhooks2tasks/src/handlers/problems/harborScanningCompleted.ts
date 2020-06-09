@@ -16,6 +16,7 @@ import {
 const HARBOR_WEBHOOK_SUCCESSFUL_SCAN = "Success";
 
 const DEFAULT_REPO_DETAILS_REGEX = "^(?<lagoonProjectName>.+)\/(?<lagoonEnvironmentName>.+)\/(?<lagoonServiceName>.+)$";
+
 const DEFAULT_REPO_DETAILS_MATCHER = {
   defaultProjectName: "",
   defaultEnvironmentName: "",
@@ -23,22 +24,13 @@ const DEFAULT_REPO_DETAILS_MATCHER = {
   regex: DEFAULT_REPO_DETAILS_REGEX,
 };
 
-// const testPatternMatchers = [
-//   {
-//     defaultProjectName: "bi-node-template",
-//     defaultEnvironmentName: "",
-//     defaultServiceName: "blah",
-//     regex: "^bi\-node\-template\-(?<lagoonEnvironmentName>.+)\/.*$",
-//   }
-// ];
-
-
  export async function harborScanningCompleted(
   WebhookRequestData,
   channelWrapperWebhooks
 ) {
   const { webhooktype, event, uuid, body } = WebhookRequestData;
   const HARBOR_WEBHOOK_SUCCESSFUL_SCAN = "Success";
+
   try {
     let {
       resources,
@@ -93,6 +85,7 @@ const DEFAULT_REPO_DETAILS_MATCHER = {
     await channelWrapperWebhooks.publish(`lagoon-webhooks`, '', buffer, {
       persistent: true,
     });
+
   } catch (error) {
     sendToLagoonLogs(
       'error',
