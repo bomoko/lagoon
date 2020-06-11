@@ -1,6 +1,4 @@
-// @flow
-
-const gql = require('./util/gql');
+const { gql } = require('./util/gql');
 
 // TODO: Split up this file
 
@@ -84,6 +82,7 @@ const typeDefs = gql`
   enum ProjectAvailability {
     STANDARD
     HIGH
+    POLYSITE
   }
 
   enum GroupRole {
@@ -140,6 +139,29 @@ const typeDefs = gql`
     problems: [Problem]
   }
 
+  type ProblemHarborScanMatch {
+    id: Int
+    name: String
+    description: String
+    defaultLagoonProject: String
+    defaultLagoonEnvironment: String
+    defaultLagoonService: String
+    regex: String
+  }
+
+  input AddProblemHarborScanMatchInput {
+    name: String!
+    description: String!
+    defaultLagoonProject: String
+    defaultLagoonEnvironment: String
+    defaultLagoonService: String
+    regex: String!
+  }
+
+  input DeleteProblemHarborScanMatchInput {
+    id: Int!
+  }
+
   input AddProblemInput {
     id: Int
     environment: Int!
@@ -162,12 +184,6 @@ const typeDefs = gql`
     severityScore: SeverityScore
     identifier: String
     data: String
-  }
-
-  input AddProblemsFromSourceInput {
-    environment: Int!
-    source: String!
-    problems: [BulkProblem]
   }
 
   input DeleteProblemInput {
@@ -449,6 +465,10 @@ const typeDefs = gql`
     Which groups are directly linked to project
     """
     groups: [GroupInterface]
+    """
+    Metadata key/values stored against a project
+    """
+    metadata: JSON
   }
 
   """
@@ -640,6 +660,22 @@ const typeDefs = gql`
     execute: Boolean
   }
 
+  input MetadataKeyValue {
+    key: String!
+    value: String
+  }
+
+  input UpdateMetadataInput {
+    id: Int!
+    patch: MetadataKeyValue!
+  }
+
+  input RemoveMetadataInput {
+    id: Int!
+    key: String!
+  }
+
+
   type Query {
     """
     Returns the current user
@@ -679,6 +715,10 @@ const typeDefs = gql`
     """
     allProjects(createdAfter: String, gitUrl: String, order: ProjectOrderType): [Project]
     """
+    Returns all Project Objects matching metadata filters
+    """
+    projectsByMetadata(metadata: [MetadataKeyValue]): [Project]
+    """
     Returns all OpenShift Objects
     """
     allOpenshifts: [Openshift]
@@ -715,6 +755,10 @@ const typeDefs = gql`
     Returns LAGOON_VERSION
     """
     lagoonVersion: JSON
+    """
+    Returns all ProblemHarborScanMatchers
+    """
+    allProblemHarborScanMatchers: [ProblemHarborScanMatch]
   }
 
   # Must provide id OR name
@@ -1380,9 +1424,10 @@ const typeDefs = gql`
     cancelDeployment(input: CancelDeploymentInput!): String
     addBackup(input: AddBackupInput!): Backup
     addProblem(input: AddProblemInput!): Problem
-    addProblemsFromSource(input: AddProblemsFromSourceInput!): String
+    addProblemHarborScanMatch(input: AddProblemHarborScanMatchInput!): ProblemHarborScanMatch
     deleteProblem(input: DeleteProblemInput!): String
     deleteProblemsFromSource(input: DeleteProblemsFromSourceInput!): String
+    deleteProblemHarborScanMatch(input: DeleteProblemHarborScanMatchInput!): String
     deleteBackup(input: DeleteBackupInput!): String
     deleteAllBackups: String
     addRestore(input: AddRestoreInput!): Restore
@@ -1427,6 +1472,8 @@ const typeDefs = gql`
     updateProjectBillingGroup(input: ProjectBillingGroupInput): Project
     removeProjectFromBillingGroup(input: ProjectBillingGroupInput): Project
     removeGroupsFromProject(input: ProjectGroupsInput!): Project
+    updateProjectMetadata(input: UpdateMetadataInput!): Project
+    removeProjectMetadataByKey(input: RemoveMetadataInput!): Project
     addBillingModifier(input: AddBillingModifierInput!): BillingModifier
     updateBillingModifier(input: UpdateBillingModifierInput!): BillingModifier
     deleteBillingModifier(input: DeleteBillingModifierInput!): String

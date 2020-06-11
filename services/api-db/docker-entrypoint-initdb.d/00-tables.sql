@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS environment_problem (
   lagoon_service           varchar(300) DEFAULT '',
   source                   varchar(300) DEFAULT '',
   associated_package       varchar(300) DEFAULT '',
-  description              varchar(300) DEFAULT '',
+  description              TEXT NULL    DEFAULT '',
   version                  varchar(300) DEFAULT '',
   fixed_version            varchar(300) DEFAULT '',
   links                    varchar(300) DEFAULT '',
@@ -225,6 +225,16 @@ CREATE TABLE IF NOT EXISTS environment_problem (
   created                  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   deleted                  timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   UNIQUE(environment, lagoon_service, version, identifier, deleted)
+);
+
+CREATE TABLE IF NOT EXISTS problem_harbor_scan_matcher (
+  id                              int NOT NULL auto_increment PRIMARY KEY,
+  name                            varchar(100) NOT NULL,
+  description                     text NULL,
+  default_lagoon_project          varchar(300) NULL,
+  default_lagoon_environment      varchar(300) NULL,
+  default_lagoon_service_name     varchar(300) NULL,
+  regex                           varchar(300) NOT NULL
 );
 
 -- Junction Tables
