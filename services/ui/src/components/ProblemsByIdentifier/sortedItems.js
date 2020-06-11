@@ -26,11 +26,16 @@ const useSortableData = (initialItems, initialConfig = {key: 'severity', directi
           bParsed = b.projects.length;
         }
         else {
-          let aProblem = a.problem[sortConfig.key];
-          aParsed = aProblem.toString().toLowerCase().trim();
+          let aProblem, bProblem;
 
-          let bProblem = b.problem[sortConfig.key];
-          bParsed = bProblem.toString().toLowerCase().trim();
+          if (a[sortConfig.key] === undefined) aProblem = a.problem;
+          if (b[sortConfig.key] === undefined) bProblem = b.problem;
+console.log(a);
+          let aItem = a[sortConfig.key] || aProblem[sortConfig.key];
+          aParsed = aItem.toString().toLowerCase().trim();
+
+          let bItem = b[sortConfig.key] || bProblem[sortConfig.key];
+          bParsed = bItem.toString().toLowerCase().trim();
         }
 
         if (aParsed < bParsed) return sortConfig.direction === 'ascending' ? -1 : 1;

@@ -117,7 +117,7 @@ const typeDefs = gql`
 
   type Problem {
     id: Int
-    environment: Int
+    environment: Environment
     severity: ProblemSeverityRating
     severityScore: SeverityScore
     identifier: String

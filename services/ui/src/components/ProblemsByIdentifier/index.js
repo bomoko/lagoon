@@ -83,10 +83,13 @@ const ProblemsByIdentifier = ({ problems }) => {
           {!sortedItems.filter(item => filterResults(item)).length && <div className="data-none">No Problems</div>}
           {sortedItems.filter(item => filterResults(item)).map((item) => {
             const {identifier, problem, projects, problems } = item;
-            const { source, associatedPackage, severity } = problem;
+            const { source, associatedPackage, severity } = problem || '';
+
+console.log(item);
+
             const columns = {
               identifier: identifier, source, severity,
-              projectsAffected: projects.filter(p => p != null).length
+              projectsAffected: projects && projects.filter(p => p != null).length || 0
             };
 
             return (
@@ -116,7 +119,7 @@ const ProblemsByIdentifier = ({ problems }) => {
                   <div className="right-content">
                     <div className="fieldWrapper">
                       <label>Projects:Environments affected:</label>
-                      {projects.filter(p => p != null).slice(0, moreProjectsLimit).map(project => {
+                      {projects && projects.filter(p => p != null).slice(0, moreProjectsLimit).map(project => {
                         const envName = project.environments.map(e => e.name) || {};
 
                         return (
@@ -131,7 +134,7 @@ const ProblemsByIdentifier = ({ problems }) => {
                           </div>
                         )
                       })}
-                      {projects.filter(p => p != null).length > moreProjectsLimit &&
+                      {projects && projects.filter(p => p != null).length > moreProjectsLimit &&
                         <button className="button more" onClick={e => onLoadMore(e)}>
                           More...
                         </button>

@@ -56,34 +56,10 @@ const getAllProblems = async (
     }
   }
 
-  // Group by Problem Identifier.
-  const groupByProblemId = await rows.reduce((obj, problem) => {
-    obj[problem.identifier] = obj[problem.identifier] || [];
-    obj[problem.identifier].push(problem);
-    return obj;
-  }, {});
+  const problemsById = await problemHelpers(sqlClient).groupByProblemIdentifier(rows);
+  const problemsWithProjects = await problemHelpers(sqlClient).getProblemsWithProjects(problemsById, hasPermission, args);
 
-  const problemIds = Object.keys(groupByProblemId).map(async (key) => {
-    let projects, problems = groupByProblemId[key];
-    projects = problems.map(async (problem) => {
-      const envType =  !R.isEmpty(args.envType) && args.envType;
-      const {id, project, openshiftProjectName, name, envName, environmentType} =
-                await projectHelpers(sqlClient).getProjectByEnvironmentId(problem.environment, envType) || {};
-
-      await hasPermission('project', 'view', {
-        project: !R.isNil(project) && project,
-      });
-
-      return (!R.isNil(id)) && {id, project, openshiftProjectName, name, environments: {name: envName}, type: environmentType};
-    });
-
-    const {...problem} = R.prop(0, groupByProblemId[key]);
-    const getProjects = await Promise.all(projects);
-    return {identifier: key, problem: {...problem}, projects: getProjects, problems: groupByProblemId[key]};
-  });
-
-  const withProjects = await Promise.all(problemIds);
-  const sorted = R.sort(R.descend(R.prop('severity')), withProjects);
+  const sorted = R.sort(R.descend(R.prop('severity')), problemsWithProjects);
   return sorted.map(row => ({ ...row }));
 };
 

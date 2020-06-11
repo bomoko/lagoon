@@ -47,14 +47,14 @@ const Problems = ({ problems }) => {
             <button
                 type="button"
                 onClick={() => handleSort('identifier')}
-                className={`button-sort ${getClassNamesFor('identifier')}`}
+                className={`button-sort identifier ${getClassNamesFor('identifier')}`}
             >
               Problem id
             </button>
             <button
                 type="button"
                 onClick={() => handleSort('severity')}
-                className={`button-sort ${getClassNamesFor('severity')}`}
+                className={`button-sort severity ${getClassNamesFor('severity')}`}
             >
               Severity
             </button>
@@ -68,21 +68,21 @@ const Problems = ({ problems }) => {
             <button
                 type="button"
                 onClick={() => handleSort('created')}
-                className={`button-sort ${getClassNamesFor('created')}`}
+                className={`button-sort source ${getClassNamesFor('created')}`}
             >
               Created
             </button>
             <button
                 type="button"
                 onClick={() => handleSort('severityScore')}
-                className={`button-sort ${getClassNamesFor('severityScore')}`}
+                className={`button-sort severityScore ${getClassNamesFor('severityScore')}`}
             >
               Severity Score
             </button>
             <button
                 type="button"
                 onClick={() => handleSort('associatedPackage')}
-                className={`button-sort ${getClassNamesFor('associatedPackage')}`}
+                className={`button-sort associatedPackage ${getClassNamesFor('associatedPackage')}`}
             >
               Package
             </button>
@@ -91,7 +91,7 @@ const Problems = ({ problems }) => {
           {!sortedItems.filter(item => filterResults(item)) && <div className="data-none">No Problems</div>}
           {sortedItems.filter(item => filterResults(item)).map((problem) => {
 
-            const {id, description, environment, project, data, service, deleted, version, fixedVersion,
+          const {id, description, environment, project, data, service, deleted, version, fixedVersion,
               links, __typename, ...selectedColumns} = problem;
 
               return (

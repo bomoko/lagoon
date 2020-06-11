@@ -1,20 +1,25 @@
 import React from 'react';
-import Problems from './index';
-import faker from 'faker/locale/en';
+import { Query } from 'react-apollo';
+import AllProblemsQuery from 'lib/query/AllProblems';
 import mocks, { generator } from 'api/src/mocks';
-import {MockList} from "graphql-tools";
+import ProblemsByIdentifier from './index';
 
 export default {
-  component: Problems,
-  title: 'Components/Problems',
+  component: ProblemsByIdentifier,
+  title: 'Components/ProblemsByIdentifier',
 }
 
-let temp = mocks.ProblemMutation(mocks.Problem);
-
-export const Default = () => (
-  <Problems problems={generator(mocks.Problem, 1, 20)} />
-);
+export const Default = ({ problems }) => <ProblemsByIdentifier problems={generator(mocks.ProblemIdentifier, 1, 20)}/>;
+Default.story = {
+  decorators: [
+    storyFn => (
+      <Query query={AllProblemsQuery} displayName="AllProblemsQuery">
+        {({data}) => storyFn({problems: data.problems})}
+      </Query>
+    ),
+  ],
+};
 
 export const NoProblems = () => (
-  <Problems problems={[]} />
+  <ProblemsByIdentifier problems={[]}/>
 );

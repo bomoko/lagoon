@@ -9,24 +9,29 @@ import './styling.css';
 
 const config = {
     "width": 1200,
-    "height": 300,
-    "layout": {"width": 11, "height": 11, "flat": false, "spacing": 1.08},
+    "height": 100,
+    "layout": {"width": 4, "height": 4, "flat": false, "spacing": 1.08},
     "origin": {"x": 0, "y": 0},
     "map": "rectangle",
 };
 
-const Honeycomb = ({ data, children }) => {
+const Honeycomb = ({ data, filter }) => {
     const { projectsProblems } = data || [];
     const [projects, setProjects] = useState(projects);
-    // const [problemsProject, setProblemsProject] = useState([]);
     const [projectInView, setProjectInView] = useState(false);
+    const [display, setDisplay] = useState({type: "normal", multiplier: 2});
 
     const generator = GridGenerator.getGenerator(config.map);
-    let rows = projectsProblems && parseInt(projectsProblems.length / 15);
+    const projectCount = projectsProblems && parseInt(projectsProblems.length);
+    const displayMultiple = display && parseInt(display.multiplier * 8);
+    let rows = projectsProblems && parseInt(projectCount / displayMultiple);
 
-    const hexs = generator.apply(config, [15, ++rows]);
+    const hexs = generator.apply(config, [displayMultiple, ++rows]);
     const layout = config.layout;
-    const size = { x: layout.width, y: layout.height };
+    const size = {
+        x: parseInt(display.hexSize * layout.width),
+        y: parseInt(display.hexSize * layout.height)
+    };
 
     const handleHexClick = (project) => {
         const {environments, id, name} = project || [];
@@ -43,8 +48,25 @@ const Honeycomb = ({ data, children }) => {
         setProjectInView({name: name, environments: environments, severityCount: {critical: critical, high: high, medium: medium, low: low}});
     };
 
+    const flattenProblems = (project) => {
+        const {environments} = project || [];
+        const filterProblems = environments && environments.filter(e => e instanceof Object).map(e => {
+            return e.problems;
+        });
+        return Array.prototype.concat.apply([], filterProblems);
+    };
+
+    const sortByProjects = (projects) => {
+        return projects && projects.sort((a, b) => {
+            const aProblems = flattenProblems(a);
+            const bProblems = flattenProblems(b);
+
+            return bProblems.length - aProblems.length;
+        });
+    };
+
     const getClassName = (critical) => {
-        if (critical === 0) { return "normal" }
+        if (critical === 0) { return "no-critical" }
         if (critical === 1) { return "light-red" } else
         if (critical >= 1 && critical <= 5) { return "red" } else
         if (critical >= 5 && critical < 10) { return "dark-red" } else
@@ -52,8 +74,20 @@ const Honeycomb = ({ data, children }) => {
     };
 
     useEffect(() => {
-        setProjects(projectsProblems);
-    }, [projectsProblems]);
+        const count = projectsProblems && projectsProblems.length;
+        if (count <= 48) setDisplay({type: "normal", multiplier: 2, hexSize: 4, viewBox: "180 -20 100 100"});
+        if (count >= 49 && count <= 96) setDisplay({type: "medium", multiplier: 4, hexSize: 1, viewBox: "65 -30 100 100"});
+        if (count >= 97 && count <=479) setDisplay({type: "large", multiplier: 4, hexSize: 1, viewBox: "65 -10 100 100"});
+        if (count >= 480) setDisplay({type: "extra-large", multiplier: 5.5, hexSize: 0.66, viewBox: "30 -10 100 100"});
+
+        const filterProjects = !filter.showCleanProjects ? projectsProblems && projectsProblems.filter(p => {
+           return !R.isEmpty(flattenProblems(p))
+        }) : projectsProblems && projectsProblems;
+
+        const sortProjects = filterProjects && sortByProjects(filterProjects);
+
+        setProjects(sortProjects);
+    }, [projectsProblems, filter]);
 
     return (
       <div className="honeycomb-display">
@@ -67,12 +101,10 @@ const Honeycomb = ({ data, children }) => {
         }
         {projects &&
         <>
-          <HexGrid width={config.width} height={config.height} viewBox={'95 -30 100 100'}>
+          <HexGrid width={config.width} height={parseInt(display.multiplier * config.height)} viewBox={display.viewBox}>
             <Layout size={size} flat={layout.flat} spacing={layout.spacing} origin={config.origin}>
               {hexs.slice(0, projects.length).map((hex, i) => {
-              //const criticalClass = criticalCount && criticalCount >=1 ? "red" : "green";
-
-                const project = projects[i] || [];
+                const project = projects[i] || null;
                 const {environments, id, name} = project;
                 const filterProblems = environments && environments.filter(e => e instanceof Object).map(e => {
                   return e.problems;
@@ -80,14 +112,12 @@ const Honeycomb = ({ data, children }) => {
 
                 const problemsPerProject = Array.prototype.concat.apply([], filterProblems);
                 const critical = problemsPerProject.filter(p => p.severity === 'CRITICAL').length;
+                const problemCount = problemsPerProject.length || 0;
 
                 return (
                   <Hexagon key={i} q={hex.q} r={hex.r} s={hex.s} className={getClassName(critical)} onClick={() => handleHexClick(project)}>
-                    {problemsPerProject.length ?
-                        <Text>
-                            P: {problemsPerProject.length}, C: {critical}
-                        </Text>
-                      : <Text>P: {problemsPerProject.length}</Text>}
+                    {problemsPerProject.length ? <Text className={display.type !== "normal" && "no-text"}>P: {problemCount}, C: {critical}</Text>
+                      : <Text className={display.type !== "normal" && "no-text"}>P: {problemCount}</Text>}
                   </Hexagon>
                 )})}
             </Layout>

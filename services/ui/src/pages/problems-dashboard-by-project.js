@@ -3,7 +3,6 @@ import * as R from 'ramda';
 import Head from 'next/head';
 import { Query } from 'react-apollo';
 import {useQuery} from "@apollo/react-hooks";
-import AllProjectsProblemsQuery from 'lib/query/AllProjectsProblems';
 import AllProblemsByProjectQuery from 'lib/query/AllProblemsByProject';
 import getSeverityEnumQuery, {getProjectOptions, getSourceOptions} from 'components/Filters/helpers';
 import withQueryLoadingNoHeader from 'lib/withQueryLoadingNoHeader';
@@ -13,11 +12,6 @@ import Accordion from "components/Accordion";
 import MainLayout from 'layouts/MainLayout';
 import SelectFilter from 'components/Filters';
 import { bp } from 'lib/variables';
-
-const EnvType = Object.freeze({
-    PRODUCTION:   'PRODUCTION',
-    DEVELOPMENT:  'DEVELOPMENT'
-});
 
 /**
  * Displays the problems overview page by project.
@@ -31,8 +25,6 @@ const ProblemsDashboardProductPage = () => {
   const { data: projects, loading: projectsLoading } = useQuery(getProjectOptions);
   const { data: severities, loading: severityLoading } = useQuery(getSeverityEnumQuery);
   const { data: sources, loading: sourceLoading } = useQuery(getSourceOptions);
-
-  const { data: projectsProblems, loading: projectsProblemsLoading} = useQuery(AllProjectsProblemsQuery);
 
   const handleProjectChange = (project) => {
     let values = project && project.map(p => p.value) || [];

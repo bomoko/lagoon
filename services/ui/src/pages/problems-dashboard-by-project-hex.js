@@ -13,16 +13,11 @@ import MainLayout from 'layouts/MainLayout';
 import SelectFilter from 'components/Filters';
 import { bp } from 'lib/variables';
 
-const EnvType = Object.freeze({
-    PRODUCTION:   'PRODUCTION',
-    DEVELOPMENT:  'DEVELOPMENT'
-});
-
 /**
  * Displays the problems overview page by project.
  */
 const ProblemsDashboardProductHexPage = () => {
-  const [projectSelect, setProjectSelect] = useState([]);
+  const [showCleanProjects, setShowCleanProjects] = useState(true);
   const [source, setSource] = useState([]);
   const [severity, setSeverity] = useState(['CRITICAL']);
   const [envType, setEnvType] = useState('PRODUCTION');
@@ -31,16 +26,20 @@ const ProblemsDashboardProductHexPage = () => {
   const { data: severities, loading: severityLoading } = useQuery(getSeverityEnumQuery);
   const { data: sources, loading: sourceLoading } = useQuery(getSourceOptions);
 
-  const { data: projectsProblems, loading: projectsProblemsLoading} = useQuery(AllProjectsProblemsQuery);
-
-  const handleProjectChange = (project) => {
-    let values = project && project.map(p => p.value) || [];
-    setProjectSelect(values);
-  };
+  const { data: projectsProblems, loading: projectsProblemsLoading} =
+      useQuery(AllProjectsProblemsQuery, {
+        variables: {
+          severity: severity,
+          source: source,
+          envType: envType
+        }
+      });
 
   const handleEnvTypeChange = (envType) => {
     setEnvType(envType.value);
   };
+
+  const handleShowAllProjectsCheck = () => setShowCleanProjects(!showCleanProjects);
 
   const handleSourceChange = (source) => {
     let values = source && source.map(s => s.value) || [];
@@ -50,10 +49,6 @@ const ProblemsDashboardProductHexPage = () => {
   const handleSeverityChange = (severity) => {
     let values = severity && severity.map(s => s.value) || [];
     setSeverity(values);
-  };
-
-  const projectOptions = (projects) => {
-    return projects && projects.map(p => ({ value: p.name, label: p.name}));
   };
 
   const sourceOptions = (sources) => {
@@ -73,13 +68,6 @@ const ProblemsDashboardProductHexPage = () => {
       <div className="filters-wrapper">
         <div className="filters">
           <SelectFilter
-              title="Project"
-              loading={projectsLoading}
-              options={projects && projectOptions(projects.allProjects)}
-              onFilterChange={handleProjectChange}
-              isMulti
-            />
-          <SelectFilter
               title="Severity"
               loading={severityLoading}
               options={severities && severityOptions(severities.__type.enumValues)}
@@ -87,8 +75,6 @@ const ProblemsDashboardProductHexPage = () => {
               onFilterChange={handleSeverityChange}
               isMulti
           />
-        </div>
-        <div className="filters">
           <SelectFilter
             title="Source"
             loading={sourceLoading}
@@ -106,10 +92,17 @@ const ProblemsDashboardProductHexPage = () => {
             onFilterChange={handleEnvTypeChange}
           />
         </div>
+        <div className="extra-filters">
+          <label>Show Projects with no problems: </label>
+          <input name="env-type" onClick={handleShowAllProjectsCheck} defaultChecked={showCleanProjects} type="checkbox" />
+        </div>
       </div>
       <div className="content-wrapper">
         <div className="overview">
-          <Honeycomb data={!R.isNil(projectsProblems) && projectsProblems}/>
+          <Honeycomb
+            data={!R.isNil(projectsProblems) && projectsProblems}
+            filter={{showCleanProjects: showCleanProjects}}
+          />
         </div>
       </div>
       <style jsx>{`
