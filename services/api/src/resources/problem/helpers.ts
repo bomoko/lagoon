@@ -1,9 +1,8 @@
 import * as R from 'ramda';
 import { MariaClient } from 'mariasql';
-const { asyncPipe } = require('@lagoon/commons/dist/util');
-const { query } = require('../../util/db');
-const projectHelpers = require('../project/helpers');
-const { Sql } = require('./sql');
+import { query } from '../../util/db';
+import { Helpers as projectHelpers } from '../project/helpers';
+import { Sql } from './sql';
 
 export const Helpers = (sqlClient: MariaClient) => {
     const groupByProblemIdentifier = (problems) => problems.reduce((obj, problem) => {
@@ -15,7 +14,7 @@ export const Helpers = (sqlClient: MariaClient) => {
     const getAllProblems = async (source, environment, envType, severity) => {
       const environmentType = envType.map(t => t.toLowerCase());
 
-      const problems = await query(
+      return await query(
         sqlClient,
         Sql.selectAllProblems({
           source,
@@ -24,8 +23,6 @@ export const Helpers = (sqlClient: MariaClient) => {
           severity,
         })
       );
-
-      return problems;
     };
 
     const getSeverityOptions = async () => (
@@ -37,18 +34,17 @@ export const Helpers = (sqlClient: MariaClient) => {
 
     const getProblemsWithProjects = async (problems, hasPermission, args: any = []) => {
         const withProjects = await Object.keys(problems).map((key) => {
-            let projects = problems[key].map((problem) => {
+            let projects = problems[key].map(async (problem) => {
                 const envType =  !R.isEmpty(args.envType) && args.envType;
-                const {id, project, openshiftProjectName, name, envName, environmentType} =
-                    projectHelpers(sqlClient).getProjectByEnvironmentId(problem.environment, envType) || {};
+                const {id, project, openshiftProjectName, name, envName, environmentType}: any =
+                    await projectHelpers(sqlClient).getProjectByEnvironmentId(problem.environment, envType) || {};
 
-                 hasPermission('project', 'view', {
+                hasPermission('project', 'view', {
                     project: !R.isNil(project) && project,
                 });
 
                 return (!R.isNil(id)) && {id, project, openshiftProjectName, name, environments: {name: envName}, type: environmentType};
             });
-
             const {...problem} = R.prop(0, problems[key]);
             return {identifier: key, problem: {...problem}, projects: projects, problems: problems[key]};
         });

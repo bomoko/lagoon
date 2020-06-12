@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import Select, { components } from 'react-select';
-const R = require('ramda');
+import React from 'react';
+import Select from 'react-select';
 import { bp } from 'lib/variables';
 import { color } from 'lib/variables';
 
 /**
  * Displays a select filter and sends state back to parent in a callback.
+ *
  */
 const SelectFilter = ({ title, options, onFilterChange, loading, defaultValue, isMulti}) => {
 
@@ -16,7 +16,8 @@ const SelectFilter = ({ title, options, onFilterChange, loading, defaultValue, i
     const selectStyles = {
         container: styles => ({
             ...styles,
-            width: '40%'
+            "width": "100%",
+            "margin": "0 2em 0 1em"
         }),
         control: styles => ({ ...styles, backgroundColor: 'white' }),
         option: (styles, { data, isDisabled, isFocused, isSelected }) => {
@@ -29,7 +30,7 @@ const SelectFilter = ({ title, options, onFilterChange, loading, defaultValue, i
     };
 
     return (
-      <>
+      <div className="filter">
         <label id={`${title.toLowerCase()}-label`} className="title">{title}</label>
         <Select
             instanceId={title.toLowerCase()}
@@ -46,8 +47,14 @@ const SelectFilter = ({ title, options, onFilterChange, loading, defaultValue, i
             .title {
               margin: auto 0;
             }
+            .filter {
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              flex: 2 1 auto;
+            }
         `}</style>
-      </>
+      </div>
     );
 };
 

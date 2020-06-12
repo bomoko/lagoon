@@ -15,7 +15,7 @@ export const Helpers = (sqlClient: MariaClient) => {
     return R.prop(0, rows);
   };
 
-  const getProjectByEnvironmentId = async (environmentId, environmentType = null) => {
+  const getProjectByEnvironmentId = async (environmentId: number, environmentType = null) => {
     const rows = await query(sqlClient, Sql.selectProjectByEnvironmentId(environmentId, environmentType));
     return R.prop(0, rows);
   };

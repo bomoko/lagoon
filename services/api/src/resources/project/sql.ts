@@ -31,12 +31,12 @@ export const Sql = {
       .toString(),
   selectProjectByEnvironmentId: (
       environmentId,
-      environmentType = '',
-  ) => {
+      environmentType = []
+  ): {environmentId: number, environmentType: string} => {
       let q = knex('environment as e')
           .select('e.id', {envName: 'e.name'}, 'e.environment_type', 'e.project', 'e.openshift_project_name', 'p.name')
           .leftJoin('project as p', 'p.id', '=', 'e.project');
-      if (environmentType.length > 0) {
+      if (environmentType && environmentType.length > 0) {
           q.where('e.environment_type', environmentType);
       }
       q.where('e.id', environmentId);

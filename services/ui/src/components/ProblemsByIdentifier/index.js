@@ -85,8 +85,6 @@ const ProblemsByIdentifier = ({ problems }) => {
             const {identifier, problem, projects, problems } = item;
             const { source, associatedPackage, severity } = problem || '';
 
-console.log(item);
-
             const columns = {
               identifier: identifier, source, severity,
               projectsAffected: projects && projects.filter(p => p != null).length || 0

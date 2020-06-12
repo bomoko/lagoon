@@ -120,12 +120,20 @@ const ProblemsDashboardProductPage = () => {
         `}</style>
       </div>
       <div className="content-wrapper">
-        {projects && projects.allProjects.map(project => {
-          const filterProjectSelect = projectSelect.filter(s => {
-            return s.includes(project.name);
-          }).toString() || '';
+        {projects &&
+          <div className="results">
+            <div className="content">
+              <label>Projects: {projects.allProjects.length}</label>
+            </div>
+          </div>
+        }
+        <div className="projects">
+          {projects && projects.allProjects.map(project => {
+            const filterProjectSelect = projectSelect.filter(s => {
+              return s.includes(project.name);
+            }).toString() || '';
 
-          return (
+            return (
             <Query
               query={AllProblemsByProjectQuery}
               variables={{
@@ -166,18 +174,15 @@ const ProblemsDashboardProductPage = () => {
                         >
                           {!environments.length && <div className="data-none">No Environments</div>}
                           <div className="overview">
-                              <ul className="overview-list">
-                                <li className="result"><label>Results: </label>{Object.keys(problemsPerProject).length} Problems</li>
-                                <li className="result"><label>Critical: </label>{critical}</li>
-                                <li className="result"><label>High: </label>{high}</li>
-                                <li className="result"><label>Medium: </label>{medium}</li>
-                                <li className="result"><label>Low: </label>{low}</li>
-                              </ul>
-                              {/*<ul className="overview-list">*/}
-                              {/*<li className="result"><label>Showing: </label>{envTypeChecked ? 'Production' : 'Development'} environments</li>*/}
-                              {/*</ul>*/}
+                            <ul className="overview-list">
+                              <li className="result"><label>Results: </label>{Object.keys(problemsPerProject).length} Problems</li>
+                              <li className="result"><label>Critical: </label>{critical}</li>
+                              <li className="result"><label>High: </label>{high}</li>
+                              <li className="result"><label>Medium: </label>{medium}</li>
+                              <li className="result"><label>Low: </label>{low}</li>
+                            </ul>
                           </div>
-                          {environments && environments.map(environment => (
+                          {environments.map(environment => (
                             <div className="environment-wrapper">
                               <label className="environment"><h5>Environment: {environment.name}</h5></label>
                               <ProblemsByProject key={environment.id} problems={environment.problems || [] } minified={true}/>
@@ -189,8 +194,8 @@ const ProblemsDashboardProductPage = () => {
                 }
               </>);
             })}</Query>
-          )
-        })}
+          )})}
+        </div>
       <style jsx>{`
         .content-wrapper {
           h2 {
@@ -202,8 +207,12 @@ const ProblemsDashboardProductPage = () => {
               margin: 62px calc((100vw / 16) * 3) 0;
             }
           }
+          .results {
+            padding: 5px 0 5px;
+            background: #f3f3f3;
+            margin-bottom: 1em;
+          }
           .content {
-            background: #fff;
             margin: 0 calc((100vw / 16) * 1);
             @media ${bp.wideUp} {
               margin: 0 calc((100vw / 16) * 2);
@@ -214,6 +223,12 @@ const ProblemsDashboardProductPage = () => {
             li.result {
               display: inline;
             }
+          }
+          .projects {
+            padding-bottom: 20px;
+          }
+          .project-overview {
+            background: #fff;
           }
           .environment-wrapper {
             padding: 0 1em 1em;

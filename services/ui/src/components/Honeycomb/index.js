@@ -93,7 +93,7 @@ const Honeycomb = ({ data, filter }) => {
       <div className="honeycomb-display">
         {!projects && <LoadingPageNoHeader />}
         {projects &&
-          <div className="content-wrapper">
+          <div className="content-wrapper results">
             <div className="content">
               <label>Projects: {projects.length}</label>
             </div>
@@ -144,26 +144,32 @@ const Honeycomb = ({ data, filter }) => {
         }
         <style jsx>{`
           .content-wrapper {
+             &.results {
+               background: #f1f1f1;
+             }
             .content {
-              background: #fff;
-              margin: 0 calc((100vw / 16) * 1) 20px;
+              margin: 0 calc((100vw / 16) * 1) 0;
               @media ${bp.wideUp} {
-                margin: 0 calc((100vw / 16) * 2) 20px;
+                margin: 0 calc((100vw / 16) * 2) 0;
               }
               @media ${bp.extraWideUp} {
-                margin: 0 calc((100vw / 16) * 3) 20px;
+                margin: 0 calc((100vw / 16) * 3) 0;
               }
               li.result {
                 display: inline;
               }
               .project {
                 padding: 20px;
+                background: #fff;
               }
-              .environment {
-                h5 {
-                  padding: 10px 20px;
-                  margin-top: 0;
-                  background: #f3f3f3;
+              .environment-wrapper {
+                padding-bottom: 20px;
+                .environment {
+                  h5 {
+                    padding: 10px 20px;
+                    margin-top: 0;
+                    background: #f3f3f3;
+                  }
                 }
               }
             }

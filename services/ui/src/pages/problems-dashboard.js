@@ -19,6 +19,7 @@ const EnvType = Object.freeze({
 
 /**
  * Displays the problems overview page.
+ *
  */
 const ProblemsDashboardPage = () => {
   const [source, setSource] = useState([]);

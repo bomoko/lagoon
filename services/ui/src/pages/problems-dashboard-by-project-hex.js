@@ -4,17 +4,14 @@ import Head from 'next/head';
 import {useQuery} from "@apollo/react-hooks";
 import AllProjectsProblemsQuery from 'lib/query/AllProjectsProblems';
 import getSeverityEnumQuery, {getProjectOptions, getSourceOptions} from 'components/Filters/helpers';
-import withQueryLoadingNoHeader from 'lib/withQueryLoadingNoHeader';
-import withQueryErrorNoHeader from 'lib/withQueryErrorNoHeader';
-import ProblemsByProject from "components/ProblemsByProject";
-import Accordion from "components/Accordion";
 import Honeycomb from "components/Honeycomb";
 import MainLayout from 'layouts/MainLayout';
 import SelectFilter from 'components/Filters';
 import { bp } from 'lib/variables';
 
 /**
- * Displays the problems overview page by project.
+ *  Displays problems page by project.
+ *
  */
 const ProblemsDashboardProductHexPage = () => {
   const [showCleanProjects, setShowCleanProjects] = useState(true);
@@ -22,7 +19,6 @@ const ProblemsDashboardProductHexPage = () => {
   const [severity, setSeverity] = useState(['CRITICAL']);
   const [envType, setEnvType] = useState('PRODUCTION');
 
-  const { data: projects, loading: projectsLoading } = useQuery(getProjectOptions);
   const { data: severities, loading: severityLoading } = useQuery(getSeverityEnumQuery);
   const { data: sources, loading: sourceLoading } = useQuery(getSourceOptions);
 
@@ -35,10 +31,7 @@ const ProblemsDashboardProductHexPage = () => {
         }
       });
 
-  const handleEnvTypeChange = (envType) => {
-    setEnvType(envType.value);
-  };
-
+  const handleEnvTypeChange = (envType) => setEnvType(envType.value);
   const handleShowAllProjectsCheck = () => setShowCleanProjects(!showCleanProjects);
 
   const handleSourceChange = (source) => {
@@ -116,7 +109,7 @@ const ProblemsDashboardProductHexPage = () => {
           }
           .filters {
             display: flex;
-            justify-content: space-between;
+            flex-flow: row;
 
             &:first-child {
               padding-bottom: 1em;

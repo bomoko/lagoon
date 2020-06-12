@@ -30,7 +30,7 @@ const useSortableData = (initialItems, initialConfig = {key: 'severity', directi
 
           if (a[sortConfig.key] === undefined) aProblem = a.problem;
           if (b[sortConfig.key] === undefined) bProblem = b.problem;
-console.log(a);
+
           let aItem = a[sortConfig.key] || aProblem[sortConfig.key];
           aParsed = aItem.toString().toLowerCase().trim();
 

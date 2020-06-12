@@ -1,12 +1,10 @@
-// @flow
-
 import * as R from 'ramda';
-import { sendToLagoonLogs } from '@lagoon/commons/src/logs';
-import { createMiscTask } from '@lagoon/commons/src/tasks';
+import { sendToLagoonLogs } from '@lagoon/commons/dist/logs';
+import { createMiscTask } from '@lagoon/commons/dist/tasks';
 import { knex, query, isPatchEmpty, prepare } from '../../util/db';
-import { Helpers as environmentHelpers } from '../environment/helpers';
 import { Sql } from './sql';
-const problemHelpers = require('./helpers');
+import { Helpers as problemHelpers } from './helpers';
+import { Helpers as environmentHelpers } from '../environment/helpers';
 import { Helpers as projectHelpers } from '../project/helpers';
 const logger = require('../../logger');
 
@@ -185,7 +183,7 @@ export const addProblemsFromSource = async(
 
       let rets = [];
       //TODO: use Rambda to pull these props off - build some kind of fallback logic for errors ...
-      // await Promise.all(Promises).then(values => rets = values.map(e => e.info.insertId));
+      await Promise.all(Promises).then(values => rets = values.map((e: any) => e.info.insertId));
       // return rets;
 };
 
