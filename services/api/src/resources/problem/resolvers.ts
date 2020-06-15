@@ -47,7 +47,7 @@ export const getAllProblems = async (
   const problemsWithProjects = await problemHelpers(sqlClient).getProblemsWithProjects(problemsById, hasPermission, args);
 
   const sorted = R.sort(R.descend(R.prop('severity')), problemsWithProjects);
-  return sorted.map(row => ({ ...row }));
+  return sorted.map((row: any) => ({ ...(row as Object) }));
 };
 
 export const getSeverityOptions = async (
