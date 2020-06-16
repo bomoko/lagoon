@@ -14,11 +14,12 @@ const SelectFilter = ({ title, options, onFilterChange, loading, defaultValue, i
     };
 
     const selectStyles = {
-        container: styles => ({
-            ...styles,
-            "width": "100%",
-            "margin": "0 2em 0 1em"
-        }),
+        container: (styles) => {
+            return ({
+                ...styles,
+                "width": "100%"
+            })
+        },
         control: styles => ({ ...styles, backgroundColor: 'white' }),
         option: (styles, { data, isDisabled, isFocused, isSelected }) => {
             return {
@@ -46,12 +47,20 @@ const SelectFilter = ({ title, options, onFilterChange, loading, defaultValue, i
         <style jsx>{`
             .title {
               margin: auto 0;
+              @media ${bp.wideUp} {
+                margin: auto 15px;
+              }
             }
             .filter {
-              display: flex;
-              flex-direction: row;
-              justify-content: space-between;
-              flex: 2 1 auto;
+              margin-bottom: 1em;
+
+              @media ${bp.wideUp} {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                flex: 2 1 auto;
+                margin: 0;
+              }
             }
         `}</style>
       </div>

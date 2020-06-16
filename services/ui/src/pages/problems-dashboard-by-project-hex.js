@@ -76,7 +76,7 @@ const ProblemsDashboardProductHexPage = () => {
             isMulti
           />
           <SelectFilter
-            title="EnvType"
+            title="Type"
             defaultValue={{value: 'PRODUCTION', label: 'Production'}}
             options={[
               {value: 'PRODUCTION', label: 'Production'},
@@ -109,12 +109,18 @@ const ProblemsDashboardProductHexPage = () => {
           }
           .filters {
             display: flex;
-            flex-flow: row;
+            flex-direction: column;
+            @media ${bp.wideUp} {
+              flex-flow: row;
+            }
 
             &:first-child {
               padding-bottom: 1em;
             }
           }
+        }
+        .extra-filters {
+          padding: 0 15px;
         }
         .content-wrapper {
           h2 {

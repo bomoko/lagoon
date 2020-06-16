@@ -9,7 +9,7 @@ const useSortableProblemsData = (initialItems) => {
 
     const getClassNamesFor = (name) => {
         if (!sortConfig) return;
-        return sortConfig.key === name ? sortConfig.direction : undefined;
+        return sortConfig.key === name && sortConfig.direction || 'no-sort';
     };
 
     const sortedItems = React.useMemo(() => {

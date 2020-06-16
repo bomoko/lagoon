@@ -1,6 +1,5 @@
 import React, { useState, Fragment } from "react";
 import PropTypes from "prop-types";
-import moment from 'moment';
 
 const Accordion = ({ children, defaultValue = true, className = "", onToggle, heading }) => {
     const [visibility, setVisibility] = useState(defaultValue);
@@ -10,7 +9,7 @@ const Accordion = ({ children, defaultValue = true, className = "", onToggle, he
                 setVisibility(!visibility);
                 if (onToggle) onToggle(!visibility);
             }}>
-                <div className="problemid">{heading.identifier}</div>
+                <div className="identifier">{heading.identifier}</div>
                 <div className="service">{heading.service}</div>
                 <div className="associatedPackage">{heading.associatedPackage || 'UNSET'}</div>
                 <div className="source">{heading.source}</div>
@@ -26,11 +25,9 @@ const Accordion = ({ children, defaultValue = true, className = "", onToggle, he
                     padding: 20px;
                     border: 1px solid #efefef;
                     cursor: pointer;
+
                     div {
-                        width: 15%;
-                    }
-                    .problemid {
-                        width: 40%
+                      width: 15%;
                     }
                 }
             `}</style>

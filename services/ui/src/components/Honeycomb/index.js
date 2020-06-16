@@ -146,6 +146,10 @@ const Honeycomb = ({ data, filter }) => {
           .content-wrapper {
              &.results {
                background: #f1f1f1;
+
+               .content {
+                 padding: 0 15px;
+               }
              }
             .content {
               margin: 0 calc((100vw / 16) * 1) 0;

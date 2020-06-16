@@ -12,11 +12,6 @@ import MainLayout from 'layouts/MainLayout';
 import SelectFilter from 'components/Filters';
 import { bp } from 'lib/variables';
 
-const EnvType = Object.freeze({
-    PRODUCTION:   'PRODUCTION',
-    DEVELOPMENT:  'DEVELOPMENT'
-});
-
 /**
  * Displays the problems overview page.
  *
@@ -24,12 +19,12 @@ const EnvType = Object.freeze({
 const ProblemsDashboardPage = () => {
   const [source, setSource] = useState([]);
   const [severity, setSeverity] = useState(['CRITICAL']);
-  const [envTypeChecked, setEnvTypeChecked] = useState(true);
+  const [envType, setEnvType] = useState('PRODUCTION');
 
   const { data: severities, loading: severityLoading } = useQuery(getSeverityEnumQuery);
   const { data: sources, loading: sourceLoading } = useQuery(getSourceOptions);
 
-  const handleEnvTypeCheck = () => setEnvTypeChecked(!envTypeChecked);
+  const handleEnvTypeChange = (envType) => setEnvType(envType.value);
 
   const handleSourceChange = (source) => {
     let values = source && source.map(s => s.value) || [];
@@ -73,12 +68,15 @@ const ProblemsDashboardPage = () => {
               onFilterChange={handleSeverityChange}
               isMulti
             />
-        </div>
-        <div className="extra-filters">
-          <div className="checkbox">
-            <label>Production / Development environments only: </label>
-            <input name="env-type" onClick={handleEnvTypeCheck} defaultChecked={envTypeChecked} type="checkbox" />
-          </div>
+            <SelectFilter
+                title="Type"
+                defaultValue={{value: 'PRODUCTION', label: 'Production'}}
+                options={[
+                    {value: 'PRODUCTION', label: 'Production'},
+                    {value: 'DEVELOPMENT', label: 'Development'}
+                ]}
+                onFilterChange={handleEnvTypeChange}
+            />
         </div>
         <style jsx>{`
             .filters-wrapper {
@@ -93,6 +91,11 @@ const ProblemsDashboardPage = () => {
                 display: flex;
                 justify-content: space-between;
                 padding-bottom: 1em;
+                flex-direction: column;
+
+                @media ${bp.wideUp} {
+                  flex-flow: row;
+                }
               }
             }
           `}</style>
@@ -102,7 +105,7 @@ const ProblemsDashboardPage = () => {
         variables={{
             source: source,
             severity: severity,
-            envType: envTypeChecked ? EnvType.PRODUCTION : EnvType.DEVELOPMENT
+            envType: envType
         }}
         displayName="AllProblemsQuery"
       >
@@ -128,7 +131,7 @@ const ProblemsDashboardPage = () => {
                     <li className="result"><label>Low: </label>{low}</li>
                   </ul>
                   <ul className="overview-list">
-                    <li className="result"><label>Showing: </label>{envTypeChecked ? 'Production' : 'Development'} environments</li>
+                    <li className="result"><label>Showing: </label>{envType.charAt(0).toUpperCase() + envType.slice(1).toLowerCase()} environments</li>
                   </ul>
                 </div>
                 <ProblemsByIdentifier problems={problems || []}/>
@@ -155,6 +158,7 @@ const ProblemsDashboardPage = () => {
 
                     li.result {
                       display: inline;
+                      padding: 0 20px 0 0;
                     }
                   }
                 }

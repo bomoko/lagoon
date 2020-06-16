@@ -2,14 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { bp, color, fontSize } from 'lib/variables';
 import useSortableData from './sortedItems';
 import Accordion from 'components/Accordion';
-import ProblemsLink from 'components/link/Problems';
 
 const ProblemsByProject = ({ problems }) => {
     const { sortedItems, getClassNamesFor, requestSort } = useSortableData(problems, {key: 'id', direction: 'ascending'});
 
     const [problemTerm, setProblemTerm] = useState('');
     const [hasFilter, setHasFilter] = React.useState(false);
-    const [moreProjectsLimit, setMoreProjectsLimit] = React.useState(5);
 
     const handleProblemFilterChange = (event) => {
       setHasFilter(false);
@@ -35,10 +33,6 @@ const ProblemsByProject = ({ problems }) => {
             return item[key].toString().toLowerCase().includes(lowercasedFilter);
           }
         });
-    };
-
-    const onLoadMore = () => {
-      setMoreProjectsLimit(moreProjectsLimit+moreProjectsLimit);
     };
 
     return (
@@ -155,6 +149,9 @@ const ProblemsByProject = ({ problems }) => {
             }
             .projectsAffected {
               width: 17.5%;
+            }
+            .associatedPackage {
+              width: 16%;
             }
           }
 

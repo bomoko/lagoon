@@ -4,11 +4,12 @@ import moment from 'moment';
 
 const Accordion = ({ children, defaultValue = true, minified = false, className = "", onToggle, columns }) => {
     const [visibility, setVisibility] = useState(defaultValue);
-    const accordionType = minified ? 'minified' : 'normal';
+    const accordionType = minified ? 'minified' : 'wide';
+    const colCountClass = columns && 'cols-'+Object.keys(columns).length;
 
     return (
         <div className={className}>
-            <div className={`accordion-heading ${accordionType}`} onClick={() => {
+            <div className={`accordion-heading ${accordionType} ${colCountClass}`} onClick={() => {
                 setVisibility(!visibility);
                 if (onToggle) onToggle(!visibility);
             }}>
@@ -53,6 +54,18 @@ const Accordion = ({ children, defaultValue = true, minified = false, className 
                       padding: 0 6px;
                     }
 
+                    &.cols-6 {
+                      > div {
+                        width: calc(100%/6);
+                        text-align: center;
+                      }
+
+                      .identifier {
+                        width: 25%;
+                        text-align: left;
+                      }
+                    }
+
                     .identifier {
                       width: 40%;
                     }
@@ -64,6 +77,12 @@ const Accordion = ({ children, defaultValue = true, minified = false, className 
                     }
                     .severity {
                       width: 12.5%;
+                    }
+                    .created {
+                      width: 20%;
+                    }
+                    .severityScore {
+                      width: 10%;
                     }
                     .projectsAffected {
                       width: 17.5%;

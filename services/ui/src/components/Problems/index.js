@@ -61,14 +61,14 @@ const Problems = ({ problems }) => {
             <button
                 type="button"
                 onClick={() => handleSort('source')}
-                className={`button-sort ${getClassNamesFor('source')}`}
+                className={`button-sort source ${getClassNamesFor('source')}`}
             >
               Source
             </button>
             <button
                 type="button"
                 onClick={() => handleSort('created')}
-                className={`button-sort source ${getClassNamesFor('created')}`}
+                className={`button-sort created ${getClassNamesFor('created')}`}
             >
               Created
             </button>
@@ -119,15 +119,14 @@ const Problems = ({ problems }) => {
                         <div className="links"><a href={problem.links} target="_blank">{problem.links}</a></div>
                       </div>)}
                       <div className="rawdata">
-                        <div className="rawdata-header">Raw Data:</div>
                           <div className="rawdata-elements">
                           {Object.entries(JSON.parse(problem.data)).map(([a, b]) => {
-                            if(b) {
+                            if (b) {
                               return (
                                 <div className="rawdata-element">
-                                <label>{a}</label>
-                                <div className="data"><pre>{b}</pre></div>
-                              </div>
+                                  <label>{a}</label>
+                                  <div className="data"><pre>{b}</pre></div>
+                                </div>
                               );
                             }
                           })}
@@ -144,7 +143,7 @@ const Problems = ({ problems }) => {
               align-items: center;
               display: flex;
               margin: 0 0 14px;
-              padding-right: 40px;
+              padding: 0px 12px;
             }
             @media ${bp.smallOnly} {
               flex-wrap: wrap;
@@ -179,10 +178,15 @@ const Problems = ({ problems }) => {
             font-size: 0.8125rem;
             line-height: 1.4;
             text-transform: uppercase;
-            padding-left: 20px;
             border: none;
             background: none;
             cursor: pointer;
+            width: calc(100% / 6);
+
+            &.identifier {
+              width: 25%;
+              text-align: left;
+            }
 
             &.ascending:after {
               content: ' \\25B2';
