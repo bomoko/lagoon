@@ -110,7 +110,7 @@ app
     );
 
     server.get(
-      '/problems/project-hex',
+      '/problems',
       (req, res) => {
           app.render(req, res, '/problems-dashboard-by-project-hex');
       }
