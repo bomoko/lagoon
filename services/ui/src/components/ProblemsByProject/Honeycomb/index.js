@@ -146,6 +146,7 @@ const Honeycomb = ({ data, filter }) => {
           .content-wrapper {
              &.results {
                background: #f1f1f1;
+               margin-bottom: 20px;
 
                .content {
                  padding: 0 15px;

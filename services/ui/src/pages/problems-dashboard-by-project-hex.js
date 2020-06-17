@@ -4,7 +4,7 @@ import Head from 'next/head';
 import {useQuery} from "@apollo/react-hooks";
 import AllProjectsProblemsQuery from 'lib/query/AllProjectsProblems';
 import getSeverityEnumQuery, {getProjectOptions, getSourceOptions} from 'components/Filters/helpers';
-import Honeycomb from "components/Honeycomb";
+import Honeycomb from "components/ProblemsByProject/Honeycomb";
 import MainLayout from 'layouts/MainLayout';
 import SelectFilter from 'components/Filters';
 import { bp } from 'lib/variables';

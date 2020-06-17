@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { bp, color, fontSize } from 'lib/variables';
 import useSortableProblemsData from './sortedItems';
 import Accordion from 'components/Accordion';
+import * as moment from "moment";
 
 const Problems = ({ problems }) => {
     const { sortedItems, requestSort, getClassNamesFor } = useSortableProblemsData(problems);
@@ -91,13 +92,18 @@ const Problems = ({ problems }) => {
           {!sortedItems.filter(item => filterResults(item)) && <div className="data-none">No Problems</div>}
           {sortedItems.filter(item => filterResults(item)).map((problem) => {
 
-              const {id, description, environment, project, data, service, deleted, version, fixedVersion,
-                links, __typename, ...selectedColumns} = problem;
+            const {id, description, environment, project, data, service, deleted, version, fixedVersion,
+                links, __typename, created, ...selectedColumns} = problem;
+            const formatCreated = moment.utc(created)
+                .local()
+                .format('DD MM YYYY, HH:mm:ss');
+            const { identifier, severity, source, severityScore, associatedPackage } = selectedColumns;
+            const columns = {identifier, severity, source, created: formatCreated, severityScore, associatedPackage};
 
-              return (
+            return (
                 <Accordion
                     key={problem.id}
-                    columns={selectedColumns}
+                    columns={columns}
                     meta={problem.project}
                     defaultValue={false}
                     className="data-row row-heading">

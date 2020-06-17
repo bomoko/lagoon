@@ -1,6 +1,5 @@
 import React, { useState, Fragment } from "react";
 import PropTypes from "prop-types";
-import moment from 'moment';
 
 const Accordion = ({ children, defaultValue = true, minified = false, className = "", onToggle, columns }) => {
     const [visibility, setVisibility] = useState(defaultValue);
@@ -13,22 +12,7 @@ const Accordion = ({ children, defaultValue = true, minified = false, className 
                 setVisibility(!visibility);
                 if (onToggle) onToggle(!visibility);
             }}>
-                {Object.keys(columns).map((item, i) => {
-                    if (item === 'created') {
-                        return (<div key={i} className="created">
-                            {moment
-                                .utc(columns[item])
-                                .local()
-                                .format('DD MM YYYY, HH:mm:ss')}
-                        </div>)
-                    }
-                    else if (item === 'projects') {
-                        return <div key={i} className="environmentsAffected">{columns[item].length}</div>
-                    }
-                    else {
-                        return <div key={i} className={item}>{columns[item]}</div>
-                    }
-                })}
+                {Object.keys(columns).map((item, i) => <div key={i} className={item}>{columns[item]}</div>)}
             </div>
 
             {visibility ? <Fragment>{children}</Fragment> : null}

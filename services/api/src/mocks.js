@@ -432,7 +432,7 @@ mocks.Problem = () => {
     const description = faker.lorem.paragraph();
     const links = `https://security-tracker.debian.org/tracker/${vuln_id}`;
     const severityScore = `0.${faker.random.number({min:1, max:9})}`;
-    const data = `${JSON.stringify("{hello: 'world'}", 2, null)}`;
+    const data = ({ id: faker.random.number(), hello: 'hello', world: 'world' });
 
     return {
         identifier: vuln_id,
