@@ -1,5 +1,6 @@
 import { MockList } from 'graphql-tools';
 import faker from 'faker/locale/en';
+import { packages } from './data/mock-data';
 
 // The mocks object is an Apollo Resolver Map where each mock function has the
 // following definition: (parent, args, context, info) => {}
@@ -22,57 +23,6 @@ const addTime = (originalDate, hoursLimit) => {
   );
   return date.toISOString();
 };
-
-const packages = [
-    'ansible',
-    'apache-log',
-    'awl',
-    'cacti',
-    'chromium',
-    'commons-configuration2',
-    'consul',
-    'dom4j',
-    'drupal',
-    'file-roller',
-    'glibc',
-    'golang-go.crypto',
-    'graphicsmagick',
-    'http-parser',
-    'imagemagick',
-    'jruby',
-    'ksh',
-    'libmicrodns',
-    'libxml-security-java',
-    'linux',
-    'lucene-solr',
-    'lxc-templates',
-    'matrix-synapse',
-    'mbedtls',
-    'netty',
-    'nginx',
-    'node-yarnpkg',
-    'nodejs',
-    'nss',
-    'openjdk-11',
-    'phantomjs',
-    'php7.1',
-    'php7.3',
-    'python',
-    'rmysql',
-    'ruby-json-jwt',
-    'ruby-omniauth',
-    'salt',
-    'shiro',
-    'slirp',
-    'squid',
-    'ssvnc',
-    'thrift',
-    'tomcat9',
-    'trafficserver',
-    'varnish',
-    'xerces-c',
-    'yubikey-val',
-];
 
 // Helper function to build an array of a given schema.
 export const generator = (schema, min = 1, max) => {
@@ -473,7 +423,7 @@ mocks.ProblemIdentifier = () => {
 mocks.Problem = () => {
     const recentYear = faker.random.arrayElement(['2019', '2020']);
     const vuln_id = `CVE-${recentYear}-${faker.random.number({min: 1000, max: 99999})}`;
-    const source = faker.random.arrayElement(['Clair', 'Harbor', 'Drutiny']);
+    const source = faker.random.arrayElement(['Harbor', 'Drutiny']);
     const created = faker.date.between('2019-10-01 00:00:00', '2020-03-31 23:59:59').toUTCString();
     const associatedPackage = faker.random.arrayElement(packages);
     const version = `${faker.random.number(4)}.${faker.random.number(9)}.${faker.random.number(49)}`;
@@ -481,9 +431,8 @@ mocks.Problem = () => {
     const severity = faker.random.arrayElement(['UNKNOWN', 'NEGLIGIBLE', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL']);
     const description = faker.lorem.paragraph();
     const links = `https://security-tracker.debian.org/tracker/${vuln_id}`;
-    const deleted = '0000-00-00 00:00:00';
     const severityScore = `0.${faker.random.number({min:1, max:9})}`;
-    const data = "{hello: 'world'}";
+    const data = `${JSON.stringify("{hello: 'world'}", 2, null)}`;
 
     return {
         identifier: vuln_id,
