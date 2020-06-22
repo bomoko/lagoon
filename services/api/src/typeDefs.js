@@ -172,7 +172,6 @@ const typeDefs = gql`
     created: String
   }
 
-
   input BulkProblem {
     severity: ProblemSeverityRating
     severityScore: SeverityScore
@@ -251,6 +250,7 @@ const typeDefs = gql`
     currency: String
     billingSoftware: String
     modifiers: [BillingModifier]
+    uptimeRobotStatusPageId: String
   }
 
   type Openshift {
@@ -263,6 +263,7 @@ const typeDefs = gql`
     sshHost: String
     sshPort: String
     created: String
+    monitoringConfig: JSON
   }
 
   type NotificationMicrosoftTeams {
@@ -431,6 +432,10 @@ const typeDefs = gql`
     """
     developmentEnvironmentsLimit: Int
     """
+    Name of the OpenShift Project/Namespace
+    """
+    openshiftProjectName: String
+    """
     Deployed Environments for this Project
     """
     environments(
@@ -544,7 +549,7 @@ const typeDefs = gql`
     backups(includeDeleted: Boolean): [Backup]
     tasks(id: Int): [Task]
     services: [EnvironmentService]
-    problems(severity: [ProblemSeverityRating]): [Problem]
+    problems(severity: [ProblemSeverityRating], source: [String]): [Problem]
   }
 
   type EnvironmentHitsMonth {
@@ -639,6 +644,8 @@ const typeDefs = gql`
     discountPercentage: Float
     extraFixed: Float
     extraPercentage: Float
+    min: Float
+    max: Float
     customerComments: String
     adminComments: String
     weight: Int
@@ -688,6 +695,7 @@ const typeDefs = gql`
     """
     projectByGitUrl(gitUrl: String!): Project
     environmentByName(name: String!, project: Int!): Environment
+    environmentById(id: Int!): Environment
     """
     Returns Environment Object by a given openshiftProjectName
     """
@@ -715,6 +723,11 @@ const typeDefs = gql`
     Returns all Environments matching given filter (all if no filter defined)
     """
     allEnvironments(createdAfter: String, type: EnvType, order: EnvOrderType): [Environment]
+    """
+    Returns all Problems matching given filter (all if no filter defined)
+    """
+    allProblems(source: [String], project: Int, environment: Int, envType: [EnvType], identifier: String, severity: [ProblemSeverityRating]): [Problem]
+    problemSources: [String]
     """
     Returns all Groups matching given filter (all if no filter defined)
     """
@@ -938,6 +951,7 @@ const typeDefs = gql`
     projectUser: String
     sshHost: String
     sshPort: String
+    monitoringConfig: JSON
   }
 
   input DeleteOpenshiftInput {
@@ -1060,6 +1074,7 @@ const typeDefs = gql`
     projectUser: String
     sshHost: String
     sshPort: String
+    monitoringConfig: JSON
   }
 
   input UpdateOpenshiftInput {
@@ -1205,8 +1220,6 @@ const typeDefs = gql`
     parentGroup: GroupInput
   }
 
-
-
   input AddBillingModifierInput {
     """
     The existing billing group for this modifier
@@ -1221,7 +1234,7 @@ const typeDefs = gql`
     """
     endDate: String!
     """
-    The amount that the total monthly bill should be discounted - Format (Int)
+    The amount that the total monthly bill should be discounted - Format (Float)
     """
     discountFixed: Float
     """
@@ -1229,13 +1242,21 @@ const typeDefs = gql`
     """
     discountPercentage: Float
     """
-    The amount of exta cost that should be added to the total- Format (Int)
+    The amount of exta cost that should be added to the total- Format (Float)
     """
     extraFixed: Float
     """
     The percentage the total monthly bill should be added - Format (0-100)
     """
     extraPercentage: Float
+    """
+    The minimum amount of the invoice applied to the total- Format (Float)
+    """
+    min: Float
+    """
+    The maximum amount of the invoice applied to the total- Format (Float)
+    """
+    max: Float
     """
     Customer comments are visible to the customer
     """
@@ -1258,6 +1279,8 @@ const typeDefs = gql`
     discountPercentage: Float
     extraFixed: Float
     extraPercentage: Float
+    min: Float
+    max: Float
     customerComments: String
     adminComments: String
     weight: Int
@@ -1310,6 +1333,7 @@ const typeDefs = gql`
     name: String!
     currency: Currency!
     billingSoftware: String
+    uptimeRobotStatusPageId: String
   }
 
   input ProjectBillingGroupInput {
@@ -1321,6 +1345,7 @@ const typeDefs = gql`
     name: String!
     currency: Currency
     billingSoftware: String
+    uptimeRobotStatusPageId: String
   }
 
   input UpdateBillingGroupInput {
@@ -1460,7 +1485,6 @@ const typeDefs = gql`
     removeGroupsFromProject(input: ProjectGroupsInput!): Project
     updateProjectMetadata(input: UpdateMetadataInput!): Project
     removeProjectMetadataByKey(input: RemoveMetadataInput!): Project
-
     addBillingModifier(input: AddBillingModifierInput!): BillingModifier
     updateBillingModifier(input: UpdateBillingModifierInput!): BillingModifier
     deleteBillingModifier(input: DeleteBillingModifierInput!): String
