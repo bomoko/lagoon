@@ -1,12 +1,4 @@
-// @flow
-
-import { knex } from '../../util/db';
-
-/* ::
-
-import type {SqlObj} from '../';
-
-*/
+const { knex } = require('../../util/db');
 
 const standardEnvironmentReturn = {
     id: 'id',
@@ -36,19 +28,21 @@ const standardProblemHarborScanMatchReturn = {
     regex: 'regex'
 };
 
-export const Sql /* : SqlObj */ = {
+export const Sql = {
   selectAllProblems: ({
     source = [],
     environmentId,
     environmentType = [],
     severity = [],
-  }) => {
+  }: { source: string[], environmentId: number, environmentType: string[], severity: string[]}) => {
     let q = knex('environment_problem as p')
-    .leftJoin('environment as e', 'e.id', '=', 'p.environment')
+    .join('environment as e', {environment: 'e.id'}, '=', {environment: 'p.environment'})
     .where('p.deleted', '=', '0000-00-00 00:00:00')
-    .select('p.*', {environmentName: 'e.name'}, 'e.id', 'e.environmentType');
+    .select('p.*', {environment: 'e.id'}, { name: 'e.name', project: 'e.project',
+        environmentType: 'e.environment_type', openshiftProjectName: 'e.openshift_project_name'});
+
     if (environmentType.length > 0) {
-      q.whereIn('e.environmentType', environmentType);
+      q.whereIn('e.environment_type', environmentType);
     }
     if (source.length > 0) {
       q.whereIn('p.source', source);

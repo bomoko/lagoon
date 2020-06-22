@@ -12,7 +12,7 @@ export const Helpers = (sqlClient: MariaClient) => {
     }, {});
 
     const getAllProblems = async (source, environment, envType, severity) => {
-      const environmentType = envType.map(t => t.toLowerCase());
+      const environmentType = envType && envType.map(t => t.toLowerCase() || []);
 
       return await query(
         sqlClient,

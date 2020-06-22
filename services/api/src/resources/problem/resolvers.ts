@@ -1,71 +1,55 @@
 import * as R from 'ramda';
-import { sendToLagoonLogs } from '@lagoon/commons/dist/logs';
-import { createMiscTask } from '@lagoon/commons/dist/tasks';
-import { knex, query, isPatchEmpty, prepare } from '../../util/db';
+import { query, prepare } from '../../util/db';
 import { Sql } from './sql';
 import { Helpers as problemHelpers } from './helpers';
 import { Helpers as environmentHelpers } from '../environment/helpers';
-import { Helpers as projectHelpers } from '../project/helpers';
+import { ResolverFn } from '../';
 const logger = require('../../logger');
 
-/* ::
-
-import type {ResolversObj} from '../';
-
-*/
-
-export const getAllProblems = async (
+export const getAllProblems: ResolverFn = async (
   root,
   args,
-  {
-    sqlClient,
-    hasPermission,
-    keycloakGrant,
-  }
+  { sqlClient }
 ) => {
   let rows = [];
 
   try {
-    await hasPermission('problem', 'viewAll');
-
     if (!R.isEmpty(args)) {
       rows = await problemHelpers(sqlClient).getAllProblems(args.source, args.environment, args.envType, args.severity);
     }
     else {
-      rows = await query(sqlClient, Sql.selectAllProblems({source: [], environmentId: ''}));
+      rows = await query(sqlClient, Sql.selectAllProblems({source: [], environmentId: 0, environmentType: [], severity: []}));
     }
   }
   catch (err) {
-    console.log(err);
-    if (!keycloakGrant) {
-      logger.warn('No grant available for getAllProblems');
+    if (err) {
+      logger.warn(err);
       return [];
     }
   }
 
-  const problemsById = await problemHelpers(sqlClient).groupByProblemIdentifier(rows);
-  const problemsWithProjects = await problemHelpers(sqlClient).getProblemsWithProjects(problemsById, hasPermission, args);
+  const problems = rows && rows.map(problem => {
+     const { environment: envId, name, project, environmentType, openshiftProjectName, ...rest} = problem;
+     return { ...rest, environment: { id: envId, name, project, environmentType, openshiftProjectName }};
+  });
 
-  const sorted = R.sort(R.descend(R.prop('severity')), problemsWithProjects);
+  const sorted = R.sort(R.descend(R.prop('severity')), problems);
   return sorted.map((row: any) => ({ ...(row as Object) }));
 };
 
 export const getSeverityOptions = async (
   root,
   args,
-  { sqlClient, hasPermission },
+  { sqlClient },
 ) => {
-  await hasPermission('problem', 'viewAll');
   return await problemHelpers(sqlClient).getSeverityOptions();
 };
 
 export const getProblemSources = async (
   root,
   args,
-  { sqlClient, hasPermission },
+  { sqlClient },
 ) => {
-  await hasPermission('problem', 'viewAll');
-
   const preparedQuery = prepare(
     sqlClient,
     `SELECT DISTINCT source FROM environment_problem`,

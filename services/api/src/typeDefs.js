@@ -132,13 +132,6 @@ const typeDefs = gql`
     deleted: String
   }
 
-  type ProblemIdentifier {
-    identifier: String
-    problem: Problem
-    projects: [Project]
-    problems: [Problem]
-  }
-
   type ProblemHarborScanMatch {
     id: Int
     name: String
@@ -729,7 +722,7 @@ const typeDefs = gql`
     """
     Returns all Problems matching given filter (all if no filter defined)
     """
-    allProblems(source: [String], project: Int, environment: Int, envType: [EnvType], identifier: String, severity: [ProblemSeverityRating]): [ProblemIdentifier]
+    allProblems(source: [String], project: Int, environment: Int, envType: [EnvType], identifier: String, severity: [ProblemSeverityRating]): [Problem]
     problemSources: [String]
     """
     Returns all Groups matching given filter (all if no filter defined)

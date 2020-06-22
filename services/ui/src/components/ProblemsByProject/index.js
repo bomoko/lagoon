@@ -77,8 +77,9 @@ const ProblemsByProject = ({ problems }) => {
           {!sortedItems.filter(problem => filterResults(problem)).length && <div className="data-none">No Problems</div>}
           {sortedItems.filter(problem => filterResults(problem)).map((problem) => {
 
-            const {identifier, source, severity, associatedPackage } = problem;
+            const {identifier, source, severity, associatedPackage, data } = problem;
             const columns = {identifier, source, severity, associatedPackage};
+            const parsedData = JSON.parse(data);
 
             return (
               <Accordion
@@ -88,28 +89,28 @@ const ProblemsByProject = ({ problems }) => {
                 className="data-row row-heading"
               >
                 <div className="expanded-wrapper">
-                  <div className="left-content">
-                    <div className="fieldWrapper">
-                      <label>Problem Description</label>
-                      {problem && <div className="description">
-                          {(problem.description).length > 250 ? problem.description.substring(0, 247)+'...' : problem.description}
-                      </div>}
-                    </div>
-                    <div className="fieldWrapper">
-                      <label>Package</label>
-                      {problem && <div className="package">{problem.associatedPackage}</div>}
-                    </div>
-                    <div className="fieldWrapper">
-                      <label>Associated link (CVE description etc.)</label>
-                      {problem && <div className="links"><a href={problem.links} target="_blank">{problem.links}</a></div>}
-                    </div>
+                  <div className="fieldWrapper">
+                    <label>Problem Description</label>
+                    {problem && <div className="description">
+                      {(problem.description).length > 250 ? problem.description.substring(0, 247)+'...' : problem.description}
+                    </div>}
                   </div>
-                  <div className="right-content">
-                    <div className="fieldWrapper">
-                      <label>Data:</label>
-                        {problem && <div className="data">{problem.data}</div>}
-                    </div>
+                  <div className="fieldWrapper">
+                    <label>Package</label>
+                    {problem && <div className="package">{problem.associatedPackage}</div>}
                   </div>
+                  <div className="fieldWrapper">
+                    <label>Associated link (CVE description etc.)</label>
+                    {problem && <div className="links"><a href={problem.links} target="_blank">{problem.links}</a></div>}
+                  </div>
+                  {problem && (<div className="fieldWrapper">
+                    <label>Data:</label>
+                    <div className="data-wrapper">
+                      {parsedData && <div className="data">{Object.keys(parsedData).map((key) => {
+                          return <div className="data-item"><span className="key">{key}: </span><span className="value">{`${parsedData[key]}`}</span></div>
+                    })}</div>}
+                  </div>
+                  </div>)}
                 </div>
               </Accordion>
             );
@@ -195,7 +196,7 @@ const ProblemsByProject = ({ problems }) => {
             background: ${color.lightestGrey};
 
             .fieldWrapper {
-              padding: 0 2em 1em 0;
+              padding-bottom: 1em;
             }
 
             .left-content,
@@ -277,20 +278,24 @@ const ProblemsByProject = ({ problems }) => {
             .row-heading {
               cursor: pointer;
             }
+          }
 
-            .row-data {
-              padding: 0;
-              margin: 0;
-              background: #2d2d2d;
-              color: white;
-              font: 0.8rem Inconsolata, monospace;
-              line-height: 2;
-              transition: all 0.6s ease-in-out;
-            }
+          .data-wrapper {
+            background: #2d2d2d;
+          }
 
-            .data {
-                padding: 20px;
-                width: 100%;
+          .data {
+            padding: 20px;
+            margin: 0;
+            color: white;
+            font: 0.8rem Inconsolata, monospace;
+            line-height: 2;
+            transition: all 0.6s ease-in-out;
+            padding: 20px;
+            width: 100%;
+
+            .key {
+              color: ${color.brightBlue};
             }
           }
         `}</style>

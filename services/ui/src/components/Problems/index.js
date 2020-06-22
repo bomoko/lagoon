@@ -124,12 +124,14 @@ const Problems = ({ problems }) => {
                         <label>Associated link (CVE description etc.)</label>
                         <div className="links"><a href={problem.links} target="_blank">{problem.links}</a></div>
                       </div>)}
-                      <div className="rawdata">
+                      {problem.data && (
+                        <div className="rawdata">
+                          <label>Raw data</label>
                           <div className="rawdata-elements">
                           {Object.entries(JSON.parse(problem.data)).map(([a, b]) => {
                             if (b) {
                               return (
-                                <div className="rawdata-element">
+                                <div key={`${a.toLowerCase()}-${problem.id}`} className="rawdata-element">
                                   <label>{a}</label>
                                   <div className="data"><pre>{b}</pre></div>
                                 </div>
@@ -137,7 +139,7 @@ const Problems = ({ problems }) => {
                             }
                           })}
                         </div>
-                      </div>
+                      </div>)}
                     </div>
                 </Accordion>
               );
@@ -211,31 +213,20 @@ const Problems = ({ problems }) => {
             }
           }
 
-          .data-table {
-            background-color: ${color.white};
-            border: 1px solid ${color.lightestGrey};
-            border-radius: 3px;
-            box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.03);
-
-            .data-none {
-              border: 1px solid ${color.white};
-              border-bottom: 1px solid ${color.lightestGrey};
-              border-radius: 3px;
-              line-height: 1.5rem;
-              padding: 8px 0 7px 0;
-              text-align: center;
-            }
-
-            .data-row {
+          .rawdata {
+            .rawdata-elements {
               border: 1px solid ${color.white};
               border-bottom: 1px solid ${color.lightestGrey};
               border-radius: 0;
               line-height: 1.5rem;
               padding: 8px 0 7px 0;
+              background-color: ${color.white};
+              border: 1px solid ${color.lightestGrey};
+
               @media ${bp.wideUp} {
                 display: flex;
                 justify-content: space-between;
-                padding-right: 15px;
+                flex-direction: column;
               }
 
               & > div {
@@ -243,10 +234,6 @@ const Problems = ({ problems }) => {
                 @media ${bp.wideDown} {
                   padding-right: 40px;
                 }
-                @media ${bp.wideUp} {
-
-                }
-
               }
 
               &:hover {
@@ -276,11 +263,6 @@ const Problems = ({ problems }) => {
               font: 0.8rem Inconsolata, monospace;
               line-height: 2;
               transition: all 0.6s ease-in-out;
-            }
-
-            .data {
-              padding: 20px;
-              width: 100%;
             }
           }
         `}</style>

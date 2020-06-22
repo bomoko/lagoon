@@ -31,7 +31,7 @@ const Accordion = ({ children, defaultValue = true, minified = false, className 
                     cursor: pointer;
 
                     &.minified {
-                      padding: 0.5em 1em;
+                      padding: 1em;
                     }
 
                     > div {

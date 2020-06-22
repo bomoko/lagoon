@@ -44,6 +44,13 @@ const ProblemsDashboardPage = () => {
     return enums && enums.map(s => ({ value: s.name, label: s.name}));
   };
 
+  const groupByProblemIdentifier = (problems) => problems.reduce((arr, problem) => {
+    arr[problem.identifier] = arr[problem.identifier] || [];
+    arr[problem.identifier].push(problem);
+    return arr;
+  }, {});
+
+
   return (
   <>
     <Head>
@@ -69,13 +76,13 @@ const ProblemsDashboardPage = () => {
               isMulti
             />
             <SelectFilter
-                title="Type"
-                defaultValue={{value: 'PRODUCTION', label: 'Production'}}
-                options={[
-                    {value: 'PRODUCTION', label: 'Production'},
-                    {value: 'DEVELOPMENT', label: 'Development'}
-                ]}
-                onFilterChange={handleEnvTypeChange}
+              title="Type"
+              defaultValue={{value: 'PRODUCTION', label: 'Production'}}
+              options={[
+                {value: 'PRODUCTION', label: 'Production'},
+                {value: 'DEVELOPMENT', label: 'Development'}
+              ]}
+              onFilterChange={handleEnvTypeChange}
             />
         </div>
         <style jsx>{`
@@ -112,11 +119,20 @@ const ProblemsDashboardPage = () => {
         {R.compose(
             withQueryLoadingNoHeader,
             withQueryErrorNoHeader
-        )(({data: { problems }}) => {
-          const critical = problems.filter(p => p.problem.severity === 'CRITICAL').length;
-          const high = problems.filter(p => p.problem.severity === 'HIGH').length;
-          const medium = problems.filter(p => p.problem.severity === 'MEDIUM').length;
-          const low = problems.filter(p => p.problem.severity === 'LOW').length;
+        )(({data: {problems} }) => {
+
+          // Group problems by identifier
+          const problemsById = groupByProblemIdentifier(problems);
+          const problemIdentifiers = Object.keys(problemsById).map(p => {
+            const problem = problemsById[p][0];
+
+            return {identifier: p, source: problem.source, severity: problem.severity, problems: problemsById[p]};
+          }, []);
+
+          const critical = problems.filter(p => p.severity === 'CRITICAL').length;
+          const high = problems.filter(p => p.severity === 'HIGH').length;
+          const medium = problems.filter(p => p.severity === 'MEDIUM').length;
+          const low = problems.filter(p => p.severity === 'LOW').length;
 
           return (
           <>
@@ -124,7 +140,7 @@ const ProblemsDashboardPage = () => {
               <div className="content">
                 <div className="overview">
                   <ul className="overview-list">
-                    <li className="result"><label>Results: </label>{Object.keys(problems).length} Problems</li>
+                    <li className="result"><label>Results: </label>{problems && Object.keys(problems).length} Problems</li>
                     <li className="result"><label>Critical: </label>{critical}</li>
                     <li className="result"><label>High: </label>{high}</li>
                     <li className="result"><label>Medium: </label>{medium}</li>
@@ -134,7 +150,7 @@ const ProblemsDashboardPage = () => {
                     <li className="result"><label>Showing: </label>{envType.charAt(0).toUpperCase() + envType.slice(1).toLowerCase()} environments</li>
                   </ul>
                 </div>
-                <ProblemsByIdentifier problems={problems || []}/>
+                <ProblemsByIdentifier problems={problemIdentifiers || []}/>
               </div>
               <style jsx>{`
                 .content-wrapper {

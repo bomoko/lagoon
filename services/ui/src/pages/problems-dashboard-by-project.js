@@ -109,11 +109,13 @@ const ProblemsDashboardProductPage = () => {
               margin: 32px calc((100vw / 16) * 3);
             }
             .filters {
-              display: flex;
-              justify-content: space-between;
+              @media ${bp.wideUp} {
+                display: flex;
+                justify-content: space-between;
 
-              &:first-child {
-                padding-bottom: 1em;
+                &:first-child {
+                  padding-bottom: 1em;
+                }
               }
             }
           }
@@ -230,12 +232,20 @@ const ProblemsDashboardProductPage = () => {
           .project-overview {
             background: #fff;
           }
+          .overview {
+            .overview-list {
+              margin: 0;
+              padding: 0.8em 0;
+              background: #f3f3f3;
+            }
+          }
           .environment-wrapper {
             padding: 0 1em 1em;
             background: #fefefe;
             margin: 0 0 2em;
 
-            h4 {
+            h5 {
+              margin: 2em 0.5em;
               font-weight: 500;
             }
           }

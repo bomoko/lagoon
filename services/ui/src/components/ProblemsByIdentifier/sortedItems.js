@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from "react";
+import React, {useState, useMemo} from "react";
 import hash from 'object-hash';
 
 const useSortableData = (initialItems, initialConfig = {key: 'severity', direction: 'ascending'}) => {
@@ -22,8 +22,8 @@ const useSortableData = (initialItems, initialConfig = {key: 'severity', directi
           bParsed = b[sortConfig.key].toString().toLowerCase().trim();
         }
         else if (sortConfig.key === 'projectsAffected') {
-          aParsed = a.projects.length;
-          bParsed = b.projects.length;
+          aParsed = a.problems.length;
+          bParsed = b.problems.length;
         }
         else {
           let aProblem, bProblem;

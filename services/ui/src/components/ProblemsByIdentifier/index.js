@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { bp, color, fontSize } from 'lib/variables';
 import useSortableData from './sortedItems';
 import Accordion from 'components/Accordion';
@@ -26,15 +26,15 @@ const ProblemsByIdentifier = ({ problems }) => {
 
     const filterResults = (item) => {
       const lowercasedFilter = problemTerm.toLowerCase();
-        if (problemTerm == null || problemTerm === '') {
-          return problems;
-        }
+      if (problemTerm == null || problemTerm === '') {
+        return problems;
+      }
 
-        return Object.keys(item).some(key => {
-          if (item[key] !== null) {
-            return item[key].toString().toLowerCase().includes(lowercasedFilter);
-          }
-        });
+      return Object.keys(item).some(key => {
+        if (item[key] !== null) {
+          return item[key].toString().toLowerCase().includes(lowercasedFilter);
+        }
+      });
     };
 
     const onLoadMore = () => {
@@ -82,12 +82,12 @@ const ProblemsByIdentifier = ({ problems }) => {
         <div className="data-table">
           {!sortedItems.filter(item => filterResults(item)).length && <div className="data-none">No Problems</div>}
           {sortedItems.filter(item => filterResults(item)).map((item) => {
-            const {identifier, problem, projects, problems } = item;
-            const { source, associatedPackage, severity } = problem || '';
+            const {identifier, source, severity, problems, environment } = item;
+            const { description, associatedPackage, links } = problems[0] || '';
 
             const columns = {
               identifier: identifier, source, severity,
-              projectsAffected: projects && projects.filter(p => p != null).length || 0
+              projectsAffected: problems && problems.filter(p => p != null).length || 0
             };
 
             return (
@@ -101,38 +101,38 @@ const ProblemsByIdentifier = ({ problems }) => {
                   <div className="left-content">
                     <div className="fieldWrapper">
                       <label>Problem Description</label>
-                      {problem && <div className="description">
-                          {(problem.description).length > 250 ? problem.description.substring(0, 247)+'...' : problem.description}
+                      {description && <div className="description">
+                          {description.length > 250 ? description.substring(0, 247)+'...' : description}
                       </div>}
                     </div>
                     <div className="fieldWrapper">
                       <label>Package</label>
-                      {problem && <div className="package">{problem.associatedPackage}</div>}
+                      {associatedPackage && <div className="package">{associatedPackage}</div>}
                     </div>
                     <div className="fieldWrapper">
                       <label>Associated link (CVE description etc.)</label>
-                      {problem && <div className="links"><a href={problem.links} target="_blank">{problem.links}</a></div>}
+                      {links && <div className="links"><a href={links} target="_blank">{links}</a></div>}
                     </div>
                   </div>
                   <div className="right-content">
                     <div className="fieldWrapper">
                       <label>Projects:Environments affected:</label>
-                      {projects && projects.filter(p => p != null).slice(0, moreProjectsLimit).map(project => {
-                        const envName = project.environments.map(e => e.name) || {};
+                      {problems && problems.filter(p => p != null).slice(0, moreProjectsLimit).map(problem => {
+                        const { id, name: envName, openshiftProjectName, environmentType, project } = problem.environment || '';
 
                         return (
-                          <div key={project && project.id} className="name">
+                          <div key={id} className="name">
                             <ProblemsLink
-                              environmentSlug={project && project.openshiftProjectName}
-                              projectSlug={project ? project.name : ''}
+                              environmentSlug={openshiftProjectName}
+                              projectSlug={project && project.name}
                               className="problems-link"
                             >
-                              {project ? `${project.name}` : ''}{envName ? ` : ${envName[0]}` : ''}
+                              {project ? `${project.name}` : ''}{envName ? ` : ${envName.toLowerCase()}` : ''}
                             </ProblemsLink>
                           </div>
                         )
                       })}
-                      {projects && projects.filter(p => p != null).length > moreProjectsLimit &&
+                      {problems && problems.filter(p => p != null).length > moreProjectsLimit &&
                         <button className="button more" onClick={e => onLoadMore(e)}>
                           More...
                         </button>
