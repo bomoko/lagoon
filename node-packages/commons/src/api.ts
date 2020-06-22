@@ -1000,7 +1000,9 @@ export const getOpenShiftInfoForProject = (project: string): Promise<any> =>
           token
           projectUser
           routerPattern
+          monitoringConfig
         }
+        availability
         gitUrl
         privateKey
         subfolder
@@ -1015,6 +1017,12 @@ export const getOpenShiftInfoForProject = (project: string): Promise<any> =>
           name
           value
           scope
+        }
+        groups {
+          ... on BillingGroup {
+            type
+            uptimeRobotStatusPageId
+          }
         }
       }
     }
@@ -1361,8 +1369,7 @@ export const addProblem = ({
       fixedVersion,
       links
     },
-  );
-}
+);
 
 export const deleteProblemsFromSource = (
   environment,
@@ -1380,8 +1387,6 @@ export const deleteProblemsFromSource = (
       service
     }
   );
-}
-
 
 const problemFragment = graphqlapi.createFragment(`
 fragment on Problem {
@@ -1436,3 +1441,4 @@ export const getProblemHarborScanMatches = () => graphqlapi.query(
         regex
       }
     }`);
+}
