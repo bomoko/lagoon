@@ -64,6 +64,11 @@ const {
 } = require('./resources/task/resolvers');
 
 const {
+  addTaskDefinition,
+  allTaskDefinitions,
+} = require('./resources/task/task_definition_resolvers');
+
+const {
   getFilesByTaskId,
   uploadFilesForTask,
   deleteFilesForTask,
@@ -303,6 +308,7 @@ const resolvers = {
     deploymentByRemoteId: getDeploymentByRemoteId,
     taskByRemoteId: getTaskByRemoteId,
     taskById: getTaskById,
+    allTaskDefinitions,
     allProjects: getAllProjects,
     allOpenshifts: getAllOpenshifts,
     allEnvironments: getAllEnvironments,
@@ -381,6 +387,7 @@ const resolvers = {
     addEnvVariable,
     deleteEnvVariable,
     addTask,
+    addTaskDefinition,
     taskDrushArchiveDump,
     taskDrushSqlDump,
     taskDrushCacheClear,
