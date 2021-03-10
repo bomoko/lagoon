@@ -65,7 +65,8 @@ const {
 
 const {
   addTaskDefinition,
-  allTaskDefinitions,
+  getAllTaskDefinitions,
+  addAdvancedTask,
 } = require('./resources/task/task_definition_resolvers');
 
 const {
@@ -308,7 +309,7 @@ const resolvers = {
     deploymentByRemoteId: getDeploymentByRemoteId,
     taskByRemoteId: getTaskByRemoteId,
     taskById: getTaskById,
-    allTaskDefinitions,
+    allTaskDefinitions: getAllTaskDefinitions,
     allProjects: getAllProjects,
     allOpenshifts: getAllOpenshifts,
     allEnvironments: getAllEnvironments,
@@ -387,6 +388,7 @@ const resolvers = {
     addEnvVariable,
     deleteEnvVariable,
     addTask,
+    addAdvancedTask,
     addTaskDefinition,
     taskDrushArchiveDump,
     taskDrushSqlDump,

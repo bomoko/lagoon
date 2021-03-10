@@ -220,11 +220,11 @@ const typeDefs = gql`
     source: String!
     description: String!
   }
-  
+
   input AddFactsInput {
     facts: [AddFactInput]!
   }
-  
+
   input UpdateFactInputValue {
     environment: Int!
     name: String!
@@ -232,7 +232,7 @@ const typeDefs = gql`
     source: String!
     description: String
   }
-  
+
   input UpdateFactInput {
     environment: Int!
     patch: UpdateFactInputValue!
@@ -242,7 +242,7 @@ const typeDefs = gql`
     environment: Int!
     name: String!
   }
-  
+
   input DeleteFactsFromSourceInput {
     environment: Int!
     source: String!
@@ -708,6 +708,21 @@ const typeDefs = gql`
     files: [File]
   }
 
+  type AdvancedTask {
+    id: Int
+    name: String
+    status: String
+    created: String
+    started: String
+    completed: String
+    environment: Environment
+    service: String
+    command: String
+    remoteId: String
+    logs: String
+    files: [File]
+  }
+
   type BillingModifier {
     id: Int
     group: BillingGroup
@@ -830,6 +845,11 @@ const typeDefs = gql`
     Returns all ProblemHarborScanMatchers
     """
     allProblemHarborScanMatchers: [ProblemHarborScanMatch]
+    """
+    Returns all TaskDefinitions
+    """
+    allTaskDefinitions: [TaskDefinition]
+
   }
 
   # Must provide id OR name
@@ -987,6 +1007,20 @@ const typeDefs = gql`
   }
 
   input TaskInput {
+    id: Int
+    name: String!
+    status: TaskStatusType
+    created: String
+    started: String
+    completed: String
+    environment: Int!
+    service: String
+    command: String
+    remoteId: String
+    execute: Boolean
+  }
+
+  input AdvancedTaskInput {
     id: Int
     name: String!
     status: TaskStatusType
@@ -1544,6 +1578,7 @@ const typeDefs = gql`
     addEnvVariable(input: EnvVariableInput!): EnvKeyValue
     deleteEnvVariable(input: DeleteEnvVariableInput!): String
     addTask(input: TaskInput!): Task
+    addAdvancedTask(input: AdvancedTaskInput!): AdvancedTask
     addTaskDefinition(input: TaskDefinitionInput!): TaskDefinition
     taskDrushArchiveDump(environment: Int!): Task
     taskDrushSqlDump(environment: Int!): Task
