@@ -46,29 +46,48 @@ const getSqlPredicate = (predicate) => {
 export const getEnvironmentsByFactSearch: ResolverFn = async (
   root,
   { input },
-  { sqlClientPool, hasPermission }
+  { sqlClientPool, hasPermission, keycloakGrant, models }
 ) => {
 
   //Do we get a list of projects first to pass into this? Might make sense to make it super fast.
 
-  const projectIds = {};
+  const projectIds = await models.UserModel.getAllProjectsIdsForUser({
+    id: keycloakGrant.access_token.content.sub
+  });
 
   //to begin we link environments and facts
 
   let factQuery = knex('environment').distinct('environment.*');
 
+
+  //DEAR TIM: IS THE FOREACH'S INDEX TRUSTWORTH????
   input.filters.forEach((e, i) => {
     let tabName = `env${i}`;
     if(input.filterConnective == 'AND') {
       factQuery = factQuery.innerJoin(`environment_fact as ${tabName}`, 'environment.id', `${tabName}.environment`)
-      factQuery = factQuery.andWhere(`${tabName}.name`, '=', `${e.lhs}`)
-      factQuery = factQuery.andWhere(`${tabName}.value`, getSqlPredicate(e.predicate), predicateRHSProcess(e.predicate, e.rhs))
     } else {
       factQuery = factQuery.leftJoin(`environment_fact as ${tabName}`, 'environment.id', `${tabName}.environment`)
-      factQuery = factQuery.orWhere(`${tabName}.name`, '=', `${e.lhs}`)
-      factQuery = factQuery.orWhere(`${tabName}.value`, getSqlPredicate(e.predicate), predicateRHSProcess(e.predicate, e.rhs))
     }
   });
+
+  factQuery.where((builder) => {
+    input.filters.forEach((e, i) => {
+      let tabName = `env${i}`;
+      if(input.filterConnective == 'AND') {
+        builder = builder.innerJoin(`environment_fact as ${tabName}`, 'environment.id', `${tabName}.environment`)
+        builder = builder.andWhere(`${tabName}.name`, '=', `${e.lhs}`)
+        builder = builder.andWhere(`${tabName}.value`, getSqlPredicate(e.predicate), predicateRHSProcess(e.predicate, e.rhs))
+      } else {
+        builder = builder.leftJoin(`environment_fact as ${tabName}`, 'environment.id', `${tabName}.environment`)
+        builder = builder.orWhere(`${tabName}.name`, '=', `${e.lhs}`)
+        builder = builder.orWhere(`${tabName}.value`, getSqlPredicate(e.predicate), predicateRHSProcess(e.predicate, e.rhs))
+      }
+      return builder;
+    });
+  })
+
+  factQuery = factQuery.andWhere('environment.project', 'IN', projectIds);
+
 
   const rows = await query(
     sqlClientPool,
