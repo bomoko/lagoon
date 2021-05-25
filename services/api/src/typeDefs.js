@@ -240,6 +240,31 @@ const typeDefs = gql`
     source: String!
   }
 
+  enum FactFilterPredicate {
+    LESS_THAN
+    LESS_THAN_OR_EQUALS
+    GREATER_THAN
+    GREATER_THAN_OR_EQUALS
+    EQUALS
+    CONTAINS
+  }
+
+  enum FactFilterConnective {
+    OR
+    AND
+  }
+
+  input FactFilterAtom {
+    lhs: String!
+    predicate: FactFilterPredicate
+    rhs: String!
+  }
+
+  input FactFilterInput {
+    filterConnective: FactFilterConnective
+    filters: [FactFilterAtom]
+  }
+
   type File {
     id: Int
     filename: String
@@ -798,6 +823,11 @@ const typeDefs = gql`
     environmentByKubernetesNamespaceName(
       kubernetesNamespaceName: String!
     ): Environment
+    """
+    """
+    environmentsByFactSearch(
+      input: FactFilterInput
+    ): [Environment]
     userCanSshToEnvironment(
       openshiftProjectName: String
       kubernetesNamespaceName: String
