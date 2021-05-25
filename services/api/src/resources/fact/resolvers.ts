@@ -3,6 +3,7 @@ import { query } from '../../util/db';
 import { Helpers as environmentHelpers } from '../environment/helpers';
 import { Sql } from './sql';
 import { ResolverFn } from '../index';
+import { knex } from '../../util/db';
 
 export const getFactsByEnvironmentId: ResolverFn = async (
   { id: environmentId },
@@ -26,6 +27,55 @@ export const getFactsByEnvironmentId: ResolverFn = async (
 
   return R.sort(R.descend(R.prop('created')), rows);
 };
+
+const predicateRHSProcess = (predicate, targetValue) => predicate == 'CONTAINS' ? `%${targetValue}%` : targetValue
+
+const getSqlPredicate = (predicate) => {
+  const predicateMap = {
+    'CONTAINS': 'like',
+    'LESS_THAN': '<',
+    'LESS_THAN_OR_EQUALS': '<=',
+    'GREATER_THAN': '>',
+    'GREATER_THAN_OR_EQUALS': '<=',
+    'EQUALS': '=',
+  };
+
+  return predicateMap[predicate];
+}
+
+export const getEnvironmentsByFactSearch: ResolverFn = async (
+  root,
+  { input },
+  { sqlClientPool, hasPermission }
+) => {
+
+  //Do we get a list of projects first to pass into this? Might make sense to make it super fast.
+
+  const projectIds = {};
+
+  //to begin we link environments and facts
+
+  let factQuery = knex('environment').distinct('environment.*');
+
+  input.filters.forEach((e, i) => {
+    let tabName = `env${i}`;
+    if(input.filterConnective == 'AND') {
+      factQuery = factQuery.innerJoin(`environment_fact as ${tabName}`, 'environment.id', `${tabName}.environment`)
+      factQuery = factQuery.andWhere(`${tabName}.name`, '=', `${e.lhs}`)
+      factQuery = factQuery.andWhere(`${tabName}.value`, getSqlPredicate(e.predicate), predicateRHSProcess(e.predicate, e.rhs))
+    } else {
+      factQuery = factQuery.leftJoin(`environment_fact as ${tabName}`, 'environment.id', `${tabName}.environment`)
+      factQuery = factQuery.orWhere(`${tabName}.name`, '=', `${e.lhs}`)
+      factQuery = factQuery.orWhere(`${tabName}.value`, getSqlPredicate(e.predicate), predicateRHSProcess(e.predicate, e.rhs))
+    }
+  });
+
+  const rows = await query(
+    sqlClientPool,
+    factQuery.toString());
+
+    return rows;
+}
 
 export const addFact: ResolverFn = async (
   root,
