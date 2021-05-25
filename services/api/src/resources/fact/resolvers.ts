@@ -51,6 +51,7 @@ export const getEnvironmentsByFactSearch: ResolverFn = async (
 
   //Do we get a list of projects first to pass into this? Might make sense to make it super fast.
 
+  //TODO TIM: All projects permission will break this whole thing ...
   const projectIds = await models.UserModel.getAllProjectsIdsForUser({
     id: keycloakGrant.access_token.content.sub
   });
@@ -86,6 +87,7 @@ export const getEnvironmentsByFactSearch: ResolverFn = async (
     });
   })
 
+  //TODO: admin doesn't need this ...
   factQuery = factQuery.andWhere('environment.project', 'IN', projectIds);
 
 
